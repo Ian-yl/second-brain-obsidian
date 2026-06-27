@@ -16,7 +16,7 @@
 
 ## 2. 架构
 
-全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault；**Python 只用于两个可选功能（语音问答 + 本地自动更新），核心不依赖**。
+全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault；**Python 用于语音问答 + 本地自动更新（安装 skill 时自动检测并按需装好：检测 → 装 → 验证 → 不行重装），核心不依赖**。
 
 ```
 second-brain-obsidian/

@@ -25,17 +25,18 @@ description: >-
 
 ```
 ① 安装         用户自己把这个 skill 装好
-② 初始化建库   §A：认 Obsidian（自动）→ vault 位置（用户指定 / 默认）→ 建骨架 → 记录路径到 vault_path
-③ 采访写画像   §B：agent 出 6 维约 15 题 → 用户答（文字 / 语音）→ 提炼写 用户画像.md（+ 同步 CLAUDE.md/AGENTS.md）
-④ 日常使用：
+② 环境准备     §0：检测 Python → 没有就按需装 → 验证能用 → 不行就重装（语音 + 自动更新要用；核心不依赖）
+③ 初始化建库   §A：认 Obsidian（自动）→ vault 位置（用户指定 / 默认）→ 建骨架 → 记录路径到 vault_path
+④ 采访写画像   §B：agent 出 6 维约 15 题 → 用户答（文字 / 语音）→ 提炼写 用户画像.md（+ 同步 CLAUDE.md/AGENTS.md）
+⑤ 日常使用：
    · 读取       §读取：vault 内 CLAUDE.md（Claude）/ AGENTS.md（Codex）原生自动；别处说「加载第二大脑」
-   · 更新       §日常维护 / §自动更新：在场提炼 · 手动「更新第二大脑」· 本地 SessionEnd hook 自动（可选）
+   · 更新       §日常维护 / §自动更新：在场提炼 · 手动「更新第二大脑」· 本地 SessionEnd hook 自动
    · 知识维护   §知识库维护：喂 URL（WebFetch）/ 整理收件箱 / 体检
    · 深度补充   §C：/insights（Claude Code）或在场提炼（Codex）
 ```
 
 - **路径**：vault 位置在 ② 初始化时定一次（用户指定 or 默认）并记进 `~/.second-brain-obsidian/vault_path`；之后读取 / 更新都固定读它，不再问。
-- **引擎**：全程 **agent 直接读写 Obsidian vault 的 markdown**（格式见 `vault-format.md`），**核心零 Python**；语音问答 + 本地自动更新是两个**可选的 Python 功能**。
+- **引擎**：全程 **agent 直接读写 Obsidian vault 的 markdown**（格式见 `vault-format.md`），**核心零 Python**；语音问答 + 本地自动更新用 Python（**装 skill 时自动备齐，见 §0**）。
 
 ## 何时做什么
 
@@ -50,6 +51,18 @@ description: >-
 | 「设置语音密钥」 | 见 §语音密钥（需 Python）|
 
 ---
+
+## 0. 装 Python（安装 skill 时先做一次）
+
+语音问答 + 本地自动更新要用 Python（核心不依赖它）。安装时一次性备齐，**按需自动装，别让用户手配**：
+
+1. **检测**：跑 `python3 --version`（Windows 退 `python --version` → `py --version`）。能打印版本号 → 已就绪，进 §A。
+2. **没有 → 按需安装**（按本机 OS）：
+   - macOS：`brew install python3`（无 brew 先装：`/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`）
+   - Windows：`winget install -e --id Python.Python.3.12`
+   - Linux：`sudo apt update && sudo apt install -y python3`
+3. **验证能用**：再跑 `python3 --version` 且 `python3 -c "import json,os,sys,subprocess"` 都成功 = 可用。
+4. **不能用 → 重装一次**（`brew reinstall python3` / 重跑 winget / `apt install --reinstall -y python3`）后再验证。仍失败 → 让用户去 https://www.python.org/downloads/ 手动装；期间核心功能照常，语音 + 自动更新待 Python 就绪后即可用。
 
 ## A. 建库（一次）
 

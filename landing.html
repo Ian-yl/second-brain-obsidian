@@ -16,6 +16,7 @@
     --maxw:880px;
   }
   *{box-sizing:border-box;margin:0;padding:0}
+  [hidden]{display:none!important}
   html{scroll-behavior:smooth}
   body{
     font-family:'Space Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -101,6 +102,33 @@
   .note{text-align:center;color:var(--muted);font-size:13px;margin-top:22px}
   .note a{color:var(--green);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
   .note a:hover{border-color:var(--green)}
+  .note code{background:var(--bg2);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--green);font-size:12px}
+
+  /* install 2-step */
+  .istep{background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:26px 24px;margin-top:20px}
+  .istep-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+  .istep-head .n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--green);color:#062a12;font-weight:700;font-size:15px;flex:none}
+  .istep-head h3{font-size:19px;font-weight:700}
+  .istep-desc{color:var(--muted);font-size:14px;line-height:1.7;margin:0 0 18px 42px}
+  .qr-card{display:flex;flex-direction:column;align-items:center;gap:12px;background:#0B1220;border:1px solid var(--line);border-radius:14px;padding:22px;width:max-content;max-width:100%;margin-left:42px}
+  .qr-card img{width:168px;height:168px;border-radius:8px;background:#fff;padding:6px}
+  .qr-card span{color:var(--muted);font-size:13px}
+  .istep .terminal{margin-left:42px;margin-top:0}
+  .invite-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-left:42px}
+  .invite-card{background:#0B1220;border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;align-items:flex-start}
+  .invite-card--qr{align-items:center;text-align:center}
+  .ic-tag{font-size:11px;letter-spacing:1px;color:var(--green);margin-bottom:12px}
+  .invite-card h4{font-size:16px;font-weight:700;margin-bottom:6px}
+  .ic-desc{color:var(--muted);font-size:13px;line-height:1.6;margin-bottom:16px}
+  .btn-faucet{font-family:inherit;font-size:14px;font-weight:700;background:var(--green);color:#062a12;border:0;border-radius:10px;padding:12px 20px;cursor:pointer;transition:background .2s;width:100%;margin-top:auto}
+  .btn-faucet:hover{background:var(--green-d)}
+  .btn-faucet:disabled{opacity:.55;cursor:default}
+  .faucet-out{display:flex;align-items:center;gap:8px;margin-top:14px;width:100%}
+  .faucet-out code{flex:1;background:var(--bg);border:1px solid var(--green);border-radius:8px;padding:10px 12px;color:var(--green);font-size:16px;font-weight:700;letter-spacing:1px;text-align:center}
+  .faucet-copy{font-family:inherit;font-size:12px;font-weight:700;background:var(--bg3);color:var(--text);border:0;border-radius:8px;padding:11px 12px;cursor:pointer;flex:none}
+  .faucet-copy:hover{background:#475569}
+  .faucet-hint{font-size:12px;color:var(--muted);margin-top:10px}
+  .invite-card .qr{width:146px;height:146px;border-radius:8px;background:#fff;padding:6px;margin-top:4px}
 
   /* footer */
   footer{padding:48px 0;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
@@ -113,6 +141,8 @@
     .cards{grid-template-columns:1fr}
     section{padding:56px 0}
     .hero{padding:44px 0 16px}
+    .istep-desc,.qr-card,.istep .terminal,.invite-grid{margin-left:0}
+    .invite-grid{grid-template-columns:1fr}
   }
   @media (prefers-reduced-motion:reduce){
     *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -123,7 +153,7 @@
   <header class="wrap">
     <nav class="nav">
       <div class="brand"><span class="dot" aria-hidden="true"></span>second-brain-obsidian</div>
-      <a class="ghub" href="#install">一句话装好 ↓</a>
+      <a class="ghub" href="#install">两步装好 ↓</a>
     </nav>
   </header>
 
@@ -137,12 +167,12 @@
       <div class="cta-row">
         <a class="btn btn-primary" href="#install">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-          复制提示词装好
+          两步装好
         </a>
         <a class="btn btn-ghost" href="#how">怎么运作</a>
       </div>
       <div class="strip">
-        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>零依赖 · 不用装 Python</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>零配置 · 装好即用</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>全程本地 · 数据是你的</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>macOS / Windows</span>
       </div>
@@ -152,17 +182,17 @@
     <section id="how" class="wrap">
       <p class="eyebrow">它怎么帮你</p>
       <h2>采访一次，之后越用越像你</h2>
-      <p class="sub">先把「你是谁」讲清，再在日常对话里持续补缺 —— 你几乎不用管。</p>
+      <p class="sub">先把「你是谁」讲清，再把日常对话里的新东西持续提炼进 Obsidian。</p>
       <div class="cards">
         <article class="card">
           <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></div>
-          <h3>零依赖 · agent 直接读写</h3>
-          <p>核心全是 agent 直接读写 vault 里的 markdown，不用装 Python、不用配环境。装上就能用。</p>
+          <h3>核心零 Python · agent 直接读写</h3>
+          <p>核心全是 agent 直接读写 vault 里的 markdown，不靠 Python；语音 / 自动更新要的 Python，装时自动帮你装好 —— 你零手配，装上就能用。</p>
         </article>
         <article class="card">
           <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><polyline points="21 3 21 9 15 9"></polyline></svg></div>
-          <h3>一次采访，持续进化</h3>
-          <p>一轮深度问答把你的人格画像建好；之后日常对话里，AI 自己把你的新决策、新观点沉淀进库。</p>
+          <h3>一次采访，对话即沉淀</h3>
+          <p>先一轮深度问答把画像建好；之后你跟 AI 聊到的新东西，会被提炼、存进 Obsidian，越用越全。可选本地自动：每次对话结束自动入库。</p>
         </article>
         <article class="card">
           <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
@@ -179,31 +209,60 @@
     <!-- INSTALL -->
     <section id="install" class="install">
       <div class="wrap">
-        <p class="eyebrow">一句话装好</p>
-        <h2>复制提示词，发给你的 AI</h2>
-        <p class="sub">通过 HelixMesh 社区分发。你不用碰命令行 —— AI 自己搜、自己装、自己帮你初始化。</p>
+        <p class="eyebrow">两步装好</p>
+        <h2>获取邀请码 → 复制任务指令给 AI</h2>
+        <p class="sub">通过 HelixMesh 社区分发。你不用碰命令行 —— Agent 按入口指南自动装好这个 Skill 并帮你初始化第二大脑。</p>
 
-        <div class="steps">
-          <div class="s"><span class="n">1</span>AI 接入 HelixMesh</div>
-          <div class="s"><span class="n">2</span>复制下面的提示词</div>
-          <div class="s"><span class="n">3</span>发给 AI，它自己装好 + 采访你</div>
-        </div>
-
-        <div class="terminal">
-          <div class="term-bar">
-            <span class="left">
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
-              安装提示词
-            </span>
-            <button class="copy" id="copyBtn" type="button" aria-label="复制安装提示词">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <span id="copyLabel">复制</span>
-            </button>
+        <div class="istep">
+          <div class="istep-head"><span class="n">1</span><h3>获取邀请码</h3></div>
+          <p class="istep-desc">直接领取，或扫码进群获取（二选一）。</p>
+          <div class="invite-grid">
+            <div class="invite-card">
+              <div class="ic-tag">方式一 · 直接领取</div>
+              <h4>点一下，拿邀请码</h4>
+              <p class="ic-desc">无需注册，点击即领。</p>
+              <button class="btn-faucet" id="faucetBtn" type="button">获取邀请码</button>
+              <div class="faucet-out" id="faucetOut" hidden>
+                <code id="faucetCode"></code>
+                <button class="faucet-copy" id="faucetCopy" type="button" aria-label="复制邀请码">复制</button>
+              </div>
+              <p class="faucet-hint" id="faucetHint" aria-live="polite"></p>
+            </div>
+            <div class="invite-card invite-card--qr">
+              <div class="ic-tag">方式二 · 加群获取</div>
+              <h4>扫码进内测群</h4>
+              <p class="ic-desc">群里领邀请码 + 答疑（名额发完也能进）。</p>
+              <img class="qr" src="https://hm.gjs.ink/api/hub/api/portal/group-qr/image" alt="HelixMesh 内测交流群二维码" width="146" height="146" loading="lazy" />
+            </div>
           </div>
-          <div class="term-body"><span class="pfx">&gt; </span><span id="prompt">在 HelixMesh 社区搜索并安装「second-brain-obsidian」这个 skill；装好后照它的说明帮我初始化第二大脑 —— 建库、给我做人格问答，复刻我的风格和知识。</span></div>
         </div>
 
-        <p class="note">前提：你的 Claude Code / Codex 已接入 HelixMesh。还没接？先在你的 AI 里接入 HelixMesh，再回来复制这句。</p>
+        <div class="istep">
+          <div class="istep-head"><span class="n">2</span><h3>复制任务指令给 Agent</h3></div>
+          <p class="istep-desc">发给 Codex / Claude，并在同一条消息里附上第 1 步拿到的邀请码。Agent 会按入口指南自动装好这个 Skill 并帮你建第二大脑。</p>
+          <div class="terminal">
+            <div class="term-bar">
+              <span class="left">
+                <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+                任务指令
+              </span>
+              <button class="copy" id="copyBtn" type="button" aria-label="复制任务指令">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="copyLabel">复制</span>
+              </button>
+            </div>
+            <div class="term-body"><span id="prompt">请按入口指南执行这次任务。HelixMesh 社区 Skill 不是当前 Agent 原生 Skill 名称，不要在本地 Skill 列表里查找或要求它预先存在。
+
+入口指南：
+https://helixmesh-xhs-two.pages.dev/helixmesh-xhs-auto-publish.md
+
+本次任务只允许使用这个固定资产，不要使用本地同类 Skill，也不要切换到其他社区资产：
+sha256:177ebec3959b17491c36ad4dcceade7a5bdf6a39ee4f9502569a9881a810002f
+
+任务：用这个 Skill 帮我建第二大脑 —— 建库、给我做人格问答，复刻我的风格和知识。</span></div>
+          </div>
+          <p class="note">把第 1 步的邀请码（形如 <code>FAU-XXXXXX</code>）和这段指令一起发给 Agent。前提：本机已装好 Claude Code / Codex。</p>
+        </div>
       </div>
     </section>
   </main>
@@ -232,6 +291,47 @@
           ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);
           ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done();
         }
+      });
+    })();
+    // 方式一·直接领取：复刻 HelixMesh faucet（challenge → AES-GCM enc → issue），纯客户端调 hm.gjs.ink
+    (function(){
+      var HUB="https://hm.gjs.ink/api/hub", SEED="495779d589d999e008ee346a41857f37dd9ee7bba67fa66aa9ef65848a8a519c";
+      var btn=document.getElementById('faucetBtn'); if(!btn) return;
+      var out=document.getElementById('faucetOut'), codeEl=document.getElementById('faucetCode'),
+          copyBtn=document.getElementById('faucetCopy'), hint=document.getElementById('faucetHint');
+      function fp(){ var f=null; try{f=localStorage.getItem('sbo_fp')}catch(e){} if(!f){ var a=new Uint8Array(16); crypto.getRandomValues(a); f=[].map.call(a,function(b){return ('0'+b.toString(16)).slice(-2)}).join(''); try{localStorage.setItem('sbo_fp',f)}catch(e){} } return f; }
+      async function enc(obj){
+        var k=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(SEED));
+        var key=await crypto.subtle.importKey("raw",k,"AES-GCM",false,["encrypt"]);
+        var iv=crypto.getRandomValues(new Uint8Array(12));
+        var pt=new TextEncoder().encode(JSON.stringify(obj));
+        var ct=new Uint8Array(await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},key,pt));
+        var o=new Uint8Array(iv.length+ct.length); o.set(iv,0); o.set(ct,iv.length);
+        var s=""; for(var i=0;i<o.length;i++) s+=String.fromCharCode(o[i]); return btoa(s);
+      }
+      async function getCode(){
+        var ch=await (await fetch(HUB+"/api/invite-faucet/challenge",{cache:"no-store"})).json();
+        if(!ch||!ch.cid) throw new Error("领取暂不可用");
+        var e=await enc({cid:ch.cid,ts:ch.ts,sig:ch.sig,fp:fp()});
+        var res=await (await fetch(HUB+"/api/invite-faucet/issue",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({enc:e})})).json();
+        if(!res||!res.code) throw new Error((res&&res.message)||"领取失败，请稍后再试");
+        return res;
+      }
+      btn.addEventListener('click',function(){
+        btn.disabled=true; var old=btn.textContent; btn.textContent="领取中…"; hint.textContent="";
+        getCode().then(function(res){
+          codeEl.textContent=res.code; out.hidden=false; btn.hidden=true;
+          hint.textContent=res.reused?"这是你之前领过的邀请码":"领取成功 · 复制它，连同任务指令发给 Agent";
+        }).catch(function(err){
+          btn.disabled=false; btn.textContent=old;
+          hint.textContent=((err&&err.message)||"领取失败")+"，可改用右侧扫码进群";
+        });
+      });
+      copyBtn&&copyBtn.addEventListener('click',function(){
+        var t=(codeEl.textContent||"").trim(); if(!t) return;
+        function done(){ copyBtn.textContent="已复制"; setTimeout(function(){copyBtn.textContent="复制"},1500); }
+        if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done,fb); } else { fb(); }
+        function fb(){ var ta=document.createElement('textarea'); ta.value=t; ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy')}catch(e){} document.body.removeChild(ta); done(); }
       });
     })();
   </script>

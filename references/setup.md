@@ -1,11 +1,11 @@
 # 安装与配置
 
-> 核心功能（建库 / 采访 / 读取 / 更新 / 知识维护）由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`），不需要 Python。**Python 只用于语音问答。**
+> 核心功能（建库 / 采访 / 读取 / 更新 / 知识维护）由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`），不需要 Python。**Python 用于语音问答 + 本地自动更新；安装 skill 时 agent 自动检测并按需装好（检测 → 装 → 验证 → 不行重装），你无需手配。**
 
 ## 1. 前提
 - 一个支持的 agent：**Claude Code / Codex**。
 - （可选）**Obsidian**：vault 就是 markdown 文件夹，装了能可视化浏览（https://obsidian.md），没装也照常读写。
-- （仅语音需要）**Python 3.8+**：`python3` / `python` / `py` 任一可用即可（没有 → https://www.python.org/downloads/，Win 也可 Microsoft Store）。
+- **Python 3.8+**（语音问答 + 本地自动更新用；核心不依赖）：**安装 skill 时 agent 自动检测，没有就按需装、装完验证、不行重装**——你不用手动配。失败兜底：手动装 https://www.python.org/downloads/（Win 也可 Microsoft Store）。
 - 系统 macOS / Windows 都支持。
 
 ## 2. 建库（agent 直接做）
