@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# 运行时数据与密钥都在 ~/.second-brain-obsidian/（仓库外），此处仅作提醒：
+# 绝不提交任何密钥（secrets.env）或生成的 vault 内容。
+
+# IDE
+.idea/
+.DS_Store
+
+# Playwright MCP 会话产物（控制台日志 / 页面快照，临时文件）
+.playwright-mcp/

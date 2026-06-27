@@ -1,0 +1,32 @@
+# 安装与配置
+
+> 核心功能（建库 / 采访 / 读取 / 更新 / 知识维护）由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`），不需要 Python。**Python 只用于语音问答。**
+
+## 1. 前提
+- 一个支持的 agent：**Claude Code / Codex**。
+- （可选）**Obsidian**：vault 就是 markdown 文件夹，装了能可视化浏览（https://obsidian.md），没装也照常读写。
+- （仅语音需要）**Python 3.8+**：`python3` / `python` / `py` 任一可用即可（没有 → https://www.python.org/downloads/，Win 也可 Microsoft Store）。
+- 系统 macOS / Windows 都支持。
+
+## 2. 建库（agent 直接做）
+在 agent 对话里说「安装第二大脑 / 初始化第二大脑」，agent 会：
+- 问你库放哪（默认 mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，或你指定）；
+- 按 `vault-format.md` 建 vault：`Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md` / `_索引.md`；
+- 然后做人格问答（采访）写画像。
+> 在 vault 目录里开 Claude Code 会**原生自动读 `CLAUDE.md`**、Codex 读 `AGENTS.md`（两份同内容）——这就是默认的「读取注入」。
+
+## 3. 语音问答密钥（仅语音·需 Python）
+实时语音作答需微软 Azure STT。配密钥：`python3 <skill>/scripts/keys.py set --azure-key <KEY> [--azure-region koreacentral] [--minimax-key <KEY>]`，或手写进 `~/.second-brain-obsidian/secrets.env`（chmod 600）：
+```
+AZURE_SPEECH_KEY=你的-azure-subscription-key
+AZURE_SPEECH_REGION=koreacentral
+# TTS（可选，MiniMax）：
+MINIMAX_API_KEY=你的-minimax-key
+MINIMAX_API_HOST=https://api.minimax.chat
+```
+> 密钥**只**放这里，绝不进 vault / git / 文档，权限设 600。
+
+启动语音：`python3 <skill>/scripts/voice/bridge.py --questions <q.json> --out <answers.json> --background`，浏览器打开它打印的 URL（Windows 把 `python3` 换成 `python` / `py`）。
+
+## 4. 卸载
+删掉 vault 目录 + `~/.second-brain-obsidian/`（语音密钥）即可。

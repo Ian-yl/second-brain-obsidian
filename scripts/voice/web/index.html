@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第二大脑 · 语音通话采集</title>
+<script src="https://cdn.jsdelivr.net/npm/microsoft-cognitiveservices-speech-sdk@1.34.0/distrib/browser/microsoft.cognitiveservices.speech.sdk.bundle-min.js"></script>
+<style>
+  :root { color-scheme: light dark; }
+  body { font-family: -apple-system, system-ui, "PingFang SC", sans-serif; max-width: 640px;
+         margin: 36px auto; padding: 0 20px; line-height: 1.6; text-align: center; }
+  h1 { font-size: 20px; }
+  #progress { color: #888; font-size: 14px; }
+  #q { font-size: 24px; font-weight: 600; margin: 22px 0; min-height: 70px; }
+  #live { min-height: 80px; padding: 14px; border: 1px solid #ccc3; border-radius: 12px;
+          background: #8881; margin: 12px 0; white-space: pre-wrap; text-align: left; }
+  #orb { width: 96px; height: 96px; border-radius: 50%; margin: 8px auto 16px;
+         background: radial-gradient(circle at 35% 30%, #6ea0ff, #3358d4);
+         transition: transform .15s, box-shadow .15s; }
+  #orb.speaking { animation: pulse 1.1s infinite; }
+  #orb.listening { box-shadow: 0 0 0 0 #4f7cff88; animation: ring 1.4s infinite; }
+  @keyframes pulse { 50% { transform: scale(1.08); } }
+  @keyframes ring { 0% { box-shadow: 0 0 0 0 #4f7cff66; } 100% { box-shadow: 0 0 0 26px #4f7cff00; } }
+  button { font-size: 17px; padding: 12px 26px; border-radius: 30px; border: 0;
+           background: #2bb673; color: #fff; cursor: pointer; }
+  button.hangup { background: #e0533d; }
+  #status { color: #888; font-size: 14px; margin-top: 14px; min-height: 20px; }
+  #history { text-align: left; margin: 22px auto 0; }
+  .turn { margin: 12px 0; }
+  .turn .who { font-size: 12px; color: #999; margin-bottom: 3px; }
+  .turn .bubble { display: inline-block; padding: 9px 13px; border-radius: 12px;
+                  background: #8881; white-space: pre-wrap; max-width: 88%; }
+  .turn.ai .bubble { background: #4f7cff1f; }
+  .turn.user { text-align: right; }
+</style>
+</head>
+<body>
+  <h1>🧠 第二大脑 · 语音通话采集</h1>
+  <div id="progress"></div>
+  <div id="orb"></div>
+  <div id="q">点「开始通话」，我会像打电话一样逐题问你，你直接开口回答即可。</div>
+  <div id="live"></div>
+  <div id="ctl"><button id="start">📞 开始通话</button></div>
+  <div id="status"></div>
+  <div id="history"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let questions = [], recognizer = null, hung = false, ttsAudio = null, micStream = null;
+
+const INITIAL_SILENCE_MS = 12000;  // 答题前可思考的等待
+const END_SILENCE_MS = 2500;       // 说完停顿多久算「这题答完」自动进下一题
+
+function setOrb(mode) { $("orb").className = mode || ""; }
+
+// 对话历史：AI 问 / 你答 都记一条；返回 bubble 便于实时更新
+function appendHistory(role, text) {
+  const div = document.createElement("div");
+  div.className = "turn " + role;
+  const who = document.createElement("div");
+  who.className = "who"; who.textContent = role === "ai" ? "🤖 第二大脑" : "🧑 你";
+  const bubble = document.createElement("div");
+  bubble.className = "bubble"; bubble.textContent = text;
+  div.appendChild(who); div.appendChild(bubble);
+  $("history").appendChild(div);
+  div.scrollIntoView({ behavior: "smooth", block: "end" });
+  return bubble;
+}
+
+function _sleep(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+function browserTTS(text) {
+  return new Promise((resolve) => {
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "zh-CN"; u.rate = 1.02;
+      u.onend = resolve; u.onerror = resolve;
+      speechSynthesis.cancel(); speechSynthesis.speak(u);
+    } catch (e) { resolve(); }
+  });
+}
+
+// 朗读「尽力而为」：超时/失败都不卡流程（问题已显示在屏幕，用户读着答即可）。
+// 先 MiniMax 音色（服务端 /tts）；抓取失败 or 浏览器拦截播放 → 回退浏览器 TTS。两者都带超时，绝不死等。
+async function speak(text) {
+  let played = false;
+  try {
+    const ctrl = new AbortController();
+    const ft = setTimeout(() => ctrl.abort(), 8000);   // /tts 抓取最多 8s
+    const r = await fetch("/tts", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }), signal: ctrl.signal });
+    clearTimeout(ft);
+    if (r.ok) {
+      const url = URL.createObjectURL(await r.blob());
+      played = await new Promise((res) => {
+        let done = false;
+        const fin = (ok) => { if (!done) { done = true; res(ok); } };
+        ttsAudio = new Audio(url);
+        ttsAudio.onended = () => fin(true);
+        ttsAudio.onerror = () => fin(false);
+        ttsAudio.play().catch(() => fin(false));   // 自动播放被拦 → false → 回退
+        setTimeout(() => fin(true), 15000);        // 播了但 onended 不触发 → 超时当播过
+      });
+      URL.revokeObjectURL(url);
+    }
+  } catch (e) { played = false; }
+  if (!played) {
+    await Promise.race([browserTTS(text), _sleep(12000)]);  // 兜底浏览器 TTS
+  }
+}
+
+// 连续识别 + 静音自动结束：返回这一题的完整回答；同时实时更新历史气泡
+function listen(userBubble) {
+  return new Promise((resolve) => {
+    let text = "", got = false, timer = null, stopped = false;
+    const show = (t) => { $("live").textContent = t; if (userBubble) userBubble.textContent = t || "…"; };
+    const arm = () => {
+      clearTimeout(timer);
+      timer = setTimeout(end, got ? END_SILENCE_MS : INITIAL_SILENCE_MS);
+    };
+    const end = () => {
+      if (stopped) return; stopped = true;
+      clearTimeout(timer);
+      try { recognizer.stopContinuousRecognitionAsync(() => resolve(text.trim()), () => resolve(text.trim())); }
+      catch (e) { resolve(text.trim()); }
+    };
+    recognizer.recognizing = (_s, e) => { show((text + e.result.text).trim()); arm(); };
+    recognizer.recognized = (_s, e) => {
+      if (e.result.text) { text += e.result.text; got = true; show(text.trim()); }
+      arm();
+    };
+    recognizer.startContinuousRecognitionAsync(arm, arm);
+  });
+}
+
+async function runCall() {
+  try {
+    for (let i = 0; i < questions.length && !hung; i++) {
+      $("progress").textContent = `第 ${i + 1} / ${questions.length} 题`;
+      $("q").textContent = questions[i];
+      $("live").textContent = "";
+      appendHistory("ai", questions[i]);   // AI 说话时同步把文字显示出来 + 记入历史
+      setOrb("speaking"); $("status").textContent = "正在朗读问题…";
+      await speak(questions[i]);
+      if (hung) break;
+      setOrb("listening"); $("status").textContent = "请开口回答（说完停顿一下，自动进入下一题）";
+      const userBubble = appendHistory("user", "…");   // 占位，下面实时填入识别文字
+      const answer = await listen(userBubble);
+      if (hung) break;
+      if (!answer) userBubble.textContent = "（未识别到回答）";
+      await fetch("/answer", { method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ q: questions[i], a: answer }) });
+    }
+  } catch (e) {
+    return finish("error");   // 异常结束（识别/网络等抛错）
+  }
+  finish(hung ? "hangup" : "completed");   // 用户主动结束 / 正常答完
+}
+
+// reason: completed（答完）/ hangup（用户点结束）/ error（异常）/ closed（关页面）
+async function finish(reason) {
+  reason = reason || "completed";
+  try { if (recognizer) recognizer.stopContinuousRecognitionAsync(); } catch (e) {}
+  try { speechSynthesis.cancel(); if (ttsAudio) ttsAudio.pause(); } catch (e) {}
+  setOrb(""); $("progress").textContent = ""; $("live").textContent = "";
+  $("ctl").style.display = "none"; $("status").textContent = "";
+  $("q").textContent = reason === "completed" ? "✅ 通话结束，谢谢！正在生成你的第二大脑…"
+                     : reason === "hangup"    ? "⏹ 你主动结束了，已答的部分会保存。"
+                     : "⚠️ 通话异常结束。";
+  try {
+    await fetch("/done", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }) });
+  } catch (e) {}
+}
+
+async function boot() {
+  $("start").disabled = true; $("status").textContent = "连接中…";
+  try {
+    questions = await (await fetch("/questions")).json();
+    const t = await (await fetch("/token")).json();
+    if (t.error) throw new Error(t.error);
+
+    // 先明确要麦克风权限（弹窗）；保留 stream 让麦克风一直可用
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (permErr) {
+      $("q").textContent = "🎤 需要麦克风权限";
+      $("status").innerHTML = "浏览器/系统拦了麦克风：<br>① 点地址栏的 🎤 或 🔒 图标 → 允许；"
+        + "<br>② macOS：系统设置 → 隐私与安全性 → 麦克风 → 给浏览器打开；<br>然后点下面刷新。";
+      $("ctl").innerHTML = '<button id="reload">🔄 刷新重试</button>';
+      $("reload").onclick = () => location.reload();
+      return;
+    }
+
+    const sdk = window.SpeechSDK;
+    const cfg = sdk.SpeechConfig.fromAuthorizationToken(t.token, t.region);
+    cfg.speechRecognitionLanguage = "zh-CN";
+    cfg.setProperty(sdk.PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs, String(INITIAL_SILENCE_MS));
+    recognizer = new sdk.SpeechRecognizer(cfg, sdk.AudioConfig.fromDefaultMicrophoneInput());
+    recognizer.canceled = (_s, e) => {   // 识别出错时显示原因
+      if (e.reason === sdk.CancellationReason.Error)
+        $("status").textContent = "⚠️ 识别出错：" + (e.errorDetails || ("错误码 " + e.errorCode));
+    };
+    $("ctl").innerHTML = '<button id="hang" class="hangup">⏹ 结束通话</button>';
+    $("hang").onclick = () => { hung = true;
+      try { recognizer.stopContinuousRecognitionAsync(); } catch (e) {}
+      try { speechSynthesis.cancel(); } catch (e) {}
+      try { if (ttsAudio) { ttsAudio.pause(); if (ttsAudio.onended) ttsAudio.onended(); } } catch (e) {} };
+    runCall();
+  } catch (e) {
+    $("start").disabled = false;
+    $("q").textContent = "初始化失败：" + e.message;
+    $("status").textContent = "请确认 secrets.env 的 Azure 语音密钥/区域正确、且已允许麦克风权限。";
+    try { fetch("/done", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason: "error" }) }); } catch (_) {}
+  }
+}
+
+// 关页面/刷新 = 异常结束（用户没正常答完就走了）
+window.addEventListener("beforeunload", () => {
+  try { navigator.sendBeacon("/done",
+    new Blob([JSON.stringify({ reason: "closed" })], { type: "application/json" })); } catch (e) {}
+});
+
+$("start").onclick = boot;
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+# helixmesh silo gitignore (auto-managed)
+# silo 内部哪些不进版本库 —— 项目根 .gitignore 由用户自管，本脚本不动
+env
+skill-mined
+mine-prompt-state
+assets/
+memory/
