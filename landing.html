@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>第二大脑 · 让任何 AI 像你一样</title>
+<meta name="description" content="把『你是谁 + 你知道什么』沉淀进 Obsidian。任何 AI 加载它，就用你的风格、调你的知识做事。复制一句提示词，通过 HelixMesh 一键装好。" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0F172A; --bg2:#1E293B; --bg3:#334155;
+    --text:#F8FAFC; --muted:#94A3B8; --line:#2A3A52;
+    --green:#22C55E; --green-d:#16A34A;
+    --maxw:880px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Space Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+    background:var(--bg);color:var(--text);line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 50% -10%, rgba(34,197,94,.10), transparent 45%);
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  a{color:inherit}
+  ::selection{background:var(--green);color:#062a12}
+
+  /* nav */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.5px}
+  .brand .dot{width:10px;height:10px;border-radius:50%;background:var(--green);box-shadow:0 0 12px var(--green)}
+  .nav .ghub{color:var(--muted);font-size:13px;text-decoration:none;transition:color .2s}
+  .nav .ghub:hover{color:var(--text)}
+
+  /* hero */
+  .hero{text-align:center;padding:64px 0 28px}
+  .tag{display:inline-block;font-size:12px;letter-spacing:2px;color:var(--green);
+    border:1px solid var(--line);border-radius:999px;padding:7px 16px;margin-bottom:30px}
+  h1{font-size:clamp(40px,8vw,76px);line-height:1.05;font-weight:700;letter-spacing:-1px}
+  h1 .cursor{display:inline-block;width:.55ch;height:.92em;background:var(--green);
+    transform:translateY(.08em);margin-left:.06em;animation:blink 1.1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .lede{max-width:660px;margin:28px auto 0;font-size:clamp(15px,2.4vw,19px);color:var(--muted)}
+  .lede b{color:var(--text);font-weight:700}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:40px}
+  .btn{display:inline-flex;align-items:center;gap:9px;font-family:inherit;font-size:15px;font-weight:700;
+    border-radius:12px;padding:15px 26px;cursor:pointer;text-decoration:none;border:1px solid transparent;
+    transition:background .2s,border-color .2s,color .2s}
+  .btn-primary{background:var(--green);color:#062a12}
+  .btn-primary:hover{background:var(--green-d)}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--green);color:var(--green)}
+  .btn svg{width:18px;height:18px}
+
+  /* spec strip */
+  .strip{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;margin-top:46px;
+    color:var(--muted);font-size:13px}
+  .strip span{display:inline-flex;align-items:center;gap:8px}
+  .strip svg{width:15px;height:15px;color:var(--green)}
+
+  /* sections */
+  section{padding:72px 0}
+  .eyebrow{font-size:12px;letter-spacing:2px;color:var(--green);text-align:center}
+  h2{font-size:clamp(26px,4.5vw,38px);text-align:center;margin:12px 0 0;letter-spacing:-.5px}
+  .sub{text-align:center;color:var(--muted);margin:14px auto 0;max-width:560px;font-size:15px}
+
+  /* benefits */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+  .card{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:28px 24px;
+    transition:border-color .2s,background .2s}
+  .card:hover{border-color:var(--green);background:#1d2c44}
+  .card .ic{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    background:rgba(34,197,94,.12);color:var(--green);margin-bottom:18px}
+  .card .ic svg{width:22px;height:22px}
+  .card h3{font-size:17px;font-weight:700;margin-bottom:9px}
+  .card p{color:var(--muted);font-size:14px;line-height:1.65}
+
+  /* install */
+  .install{background:var(--bg2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .steps{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:40px;color:var(--muted);font-size:13.5px}
+  .steps .s{display:flex;align-items:center;gap:9px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 16px}
+  .steps .n{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;
+    background:var(--green);color:#062a12;font-weight:700;font-size:12px;flex:none}
+
+  .terminal{max-width:760px;margin:34px auto 0;background:#0B1220;border:1px solid var(--line);
+    border-radius:14px;overflow:hidden;box-shadow:0 24px 60px -28px rgba(0,0,0,.7)}
+  .term-bar{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;
+    background:#0d1526;border-bottom:1px solid var(--line)}
+  .term-bar .left{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:12.5px}
+  .term-bar .left .ico{width:15px;height:15px;color:var(--green)}
+  .copy{display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:12.5px;font-weight:700;
+    background:var(--green);color:#062a12;border:0;border-radius:8px;padding:8px 14px;cursor:pointer;transition:background .2s}
+  .copy:hover{background:var(--green-d)}
+  .copy.done{background:var(--bg3);color:var(--text)}
+  .copy svg{width:14px;height:14px}
+  .term-body{padding:22px 20px;font-size:14.5px;line-height:1.85;white-space:pre-wrap;word-break:break-word}
+  .term-body .pfx{color:var(--green);user-select:none}
+  #prompt{color:var(--text)}
+  .note{text-align:center;color:var(--muted);font-size:13px;margin-top:22px}
+  .note a{color:var(--green);text-decoration:none;border-bottom:1px solid transparent;transition:border-color .2s}
+  .note a:hover{border-color:var(--green)}
+
+  /* footer */
+  footer{padding:48px 0;text-align:center;color:var(--muted);font-size:13px;border-top:1px solid var(--line)}
+  footer .brand{justify-content:center;margin-bottom:12px;color:var(--text)}
+
+  /* focus */
+  a:focus-visible,button:focus-visible{outline:2px solid var(--green);outline-offset:3px;border-radius:8px}
+
+  @media (max-width:760px){
+    .cards{grid-template-columns:1fr}
+    section{padding:56px 0}
+    .hero{padding:44px 0 16px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  }
+</style>
+</head>
+<body>
+  <header class="wrap">
+    <nav class="nav">
+      <div class="brand"><span class="dot" aria-hidden="true"></span>second-brain-obsidian</div>
+      <a class="ghub" href="#install">一句话装好 ↓</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero wrap" style="padding-top:40px">
+      <span class="tag">AGENT-NATIVE · 跨 CLAUDE CODE / CODEX</span>
+      <h1>你的第二大脑<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="lede">把<b>「你是谁」</b>（人格画像）+ <b>「你知道什么」</b>（知识库）沉淀进 Obsidian。
+        任何 AI 加载它，就用<b>你的风格</b>、调<b>你的知识</b>做事 —— 像你一样。</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#install">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+          复制提示词装好
+        </a>
+        <a class="btn btn-ghost" href="#how">怎么运作</a>
+      </div>
+      <div class="strip">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>零依赖 · 不用装 Python</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v6m0 8v6M2 12h6m8 0h6"/></svg>全程本地 · 数据是你的</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>macOS / Windows</span>
+      </div>
+    </section>
+
+    <!-- BENEFITS -->
+    <section id="how" class="wrap">
+      <p class="eyebrow">它怎么帮你</p>
+      <h2>采访一次，之后越用越像你</h2>
+      <p class="sub">先把「你是谁」讲清，再在日常对话里持续补缺 —— 你几乎不用管。</p>
+      <div class="cards">
+        <article class="card">
+          <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg></div>
+          <h3>零依赖 · agent 直接读写</h3>
+          <p>核心全是 agent 直接读写 vault 里的 markdown，不用装 Python、不用配环境。装上就能用。</p>
+        </article>
+        <article class="card">
+          <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"></path><polyline points="21 3 21 9 15 9"></polyline></svg></div>
+          <h3>一次采访，持续进化</h3>
+          <p>一轮深度问答把你的人格画像建好；之后日常对话里，AI 自己把你的新决策、新观点沉淀进库。</p>
+        </article>
+        <article class="card">
+          <div class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+          <h3>全程本地 · 数据是你的</h3>
+          <p>画像和知识就是你电脑里的 Obsidian markdown，不上云。一份共享 —— 换哪个 AI 都是同一个你。</p>
+        </article>
+      </div>
+      <div class="strip" style="margin-top:34px">
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>四层知识结构（卡帕西式）</span>
+        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3zM19 10v2a7 7 0 0 1-14 0v-2M12 19v4"/></svg>可选：打电话式语音问答</span>
+      </div>
+    </section>
+
+    <!-- INSTALL -->
+    <section id="install" class="install">
+      <div class="wrap">
+        <p class="eyebrow">一句话装好</p>
+        <h2>复制提示词，发给你的 AI</h2>
+        <p class="sub">通过 HelixMesh 社区分发。你不用碰命令行 —— AI 自己搜、自己装、自己帮你初始化。</p>
+
+        <div class="steps">
+          <div class="s"><span class="n">1</span>AI 接入 HelixMesh</div>
+          <div class="s"><span class="n">2</span>复制下面的提示词</div>
+          <div class="s"><span class="n">3</span>发给 AI，它自己装好 + 采访你</div>
+        </div>
+
+        <div class="terminal">
+          <div class="term-bar">
+            <span class="left">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+              安装提示词
+            </span>
+            <button class="copy" id="copyBtn" type="button" aria-label="复制安装提示词">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span id="copyLabel">复制</span>
+            </button>
+          </div>
+          <div class="term-body"><span class="pfx">&gt; </span><span id="prompt">在 HelixMesh 社区搜索并安装「second-brain-obsidian」这个 skill；装好后照它的说明帮我初始化第二大脑 —— 建库、给我做人格问答，复刻我的风格和知识。</span></div>
+        </div>
+
+        <p class="note">前提：你的 Claude Code / Codex 已接入 HelixMesh。还没接？先在你的 AI 里接入 HelixMesh，再回来复制这句。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <div class="brand"><span class="dot" aria-hidden="true"></span>second-brain-obsidian</div>
+    把你装进 AI · 通过 HelixMesh 社区分发
+  </footer>
+
+  <script>
+    (function(){
+      var btn=document.getElementById('copyBtn');
+      var label=document.getElementById('copyLabel');
+      var prompt=document.getElementById('prompt');
+      btn.addEventListener('click',function(){
+        var text=prompt.textContent.trim();
+        function done(){
+          btn.classList.add('done');label.textContent='已复制 ✓';
+          setTimeout(function(){btn.classList.remove('done');label.textContent='复制';},2000);
+        }
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(text).then(done).catch(fallback);
+        }else{fallback();}
+        function fallback(){
+          var ta=document.createElement('textarea');ta.value=text;
+          ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);
+          ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);done();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

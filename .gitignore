@@ -12,3 +12,6 @@ __pycache__/
 
 # Playwright MCP 会话产物（控制台日志 / 页面快照，临时文件）
 .playwright-mcp/
+
+# Cloudflare Wrangler 本地缓存 / 状态（含 account_id，不入库）
+.wrangler/
