@@ -11,12 +11,12 @@
 让加载它的 agent「用你的风格 + 调你的知识」做事 ≈ 复刻你。
 
 - **统一一份**：一份画像 + 一套知识，各 agent（Claude Code / Codex / Hermes）共享同一 vault。
-- **agent-native**：核心功能（建库 / 采访 / 读取 / 更新 / 知识维护）由 **agent 直接读写 vault markdown** 完成，不依赖 Python；写入格式见 `references/vault-format.md`。
+- **agent-native**：建库 / 采访 / 读取 / 更新 / 知识维护由 **agent 直接读写 vault markdown** 完成（这部分不靠 Python）；但**自动提炼（默认开）和语音需要 Python**（安装时自动备好）。写入格式见 `references/vault-format.md`。
 - **设计原则**：奥卡姆（能简则简、手动低频）+ 费曼（先采访讲清「你是谁」，再分析补缺）。
 
 ## 2. 架构
 
-全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault；**Python 用于语音问答（可选）+ 本地自动提炼（默认开；安装时自动检测并按需装好 Python：检测 → 装 → 验证 → 不行重装），核心不依赖**。
+全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault（vault 读写本身是纯 markdown、不靠 Python）；但**需要 Python——本地自动提炼（默认开）+ 语音问答（可选）都靠它；安装时自动检测并按需装好（检测 → 装 → 验证 → 不行重装），用户无需手配**。
 
 ```
 second-brain-obsidian/
@@ -26,7 +26,7 @@ second-brain-obsidian/
 │   ├── framework.md               # 人格问答的 6 维度框架 + 种子问题
 │   └── setup.md                   # 安装与配置
 ├── agents/openai.yaml             # Codex 清单
-└── scripts/                       # 核心不依赖：语音问答(可选) + 本地自动提炼(默认开)
+└── scripts/                       # 需 Python：本地自动提炼(默认开) + 语音问答(可选)
     ├── voice/bridge.py + web/index.html   # 打电话式语音问答（Azure STT + MiniMax TTS + 对话历史）
     ├── keys.py                    # 语音密钥读写（secrets.env，chmod 600）
     ├── store.py                   # 语音小工具（密钥路径 / 原子写 / 跨平台后台派生）
@@ -103,7 +103,7 @@ vault 内原生自动读 `CLAUDE.md`（Claude Code）/ `AGENTS.md`（Codex、Her
 | 项 | 决策 |
 |---|---|
 | 设计原则 | 奥卡姆（简、手动低频）+ 费曼（采访讲清 → 分析补缺）|
-| 实现模型 | agent-native：核心由 agent 直接读写 vault markdown（按 `vault-format.md`），不依赖 Python |
+| 实现模型 | agent-native：vault 读写由 agent 直接做（markdown，按 `vault-format.md`）；自动提炼（默认开）+ 语音需 Python |
 | 流程 | 建库 → 采访 → 写画像；更新靠在场提炼；读取靠原生 `CLAUDE.md`/`AGENTS.md` |
 | 会话分析源 | Claude Code `/insights`；Codex / Hermes 在场提炼（都不读本地 transcript）|
 | 知识结构 | Inputs / Process / Outputs / Feedback 四层 |

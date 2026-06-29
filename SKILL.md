@@ -19,13 +19,13 @@ description: >-
 知识按 **Inputs / Process / Outputs / Feedback 四层**（卡帕西式）组织。
 
 **全程 agent 直接读写 vault markdown**——建库 / 采访 / 读取 / 更新 / 知识维护都由你（agent）用自带工具（读写文件 / WebFetch）完成，**写入格式严格照 `SK/references/vault-format.md`**（去重 / 四层归类 / frontmatter 全在里面）。
-**Python 给两个功能用**：语音问答（可选）和本地自动提炼（默认开，§0 自动备齐）；**核心不依赖 Python**。（`SK` = 本 skill 目录；命令里 `python3` 在 Windows 用 `python` / `py`。）
+**需要 Python**：本地自动提炼（默认开）+ 语音问答（可选）都靠它（§0 自动备齐）；vault 读写本身是纯 markdown、不靠它。（`SK` = 本 skill 目录；命令里 `python3` 在 Windows 用 `python` / `py`。）
 
 ## 完整流程
 
 ```
 ① 安装         用户自己把这个 skill 装好
-② 环境准备     §0：检测 Python → 没有就按需装 → 验证能用 → 不行就重装（语音 + 自动提炼要用；核心不依赖）
+② 环境准备     §0：检测 Python → 没有就按需装 → 验证能用 → 不行就重装（自动提炼默认开 + 语音要用）
 ③ 初始化建库   §A：认 Obsidian（自动）→ vault 位置（用户指定 / 默认）→ 建骨架 → 记录路径到 vault_path
 ④ 采访写画像   §B：agent 出 6 维约 15 题 → 用户答（文字 / 语音）→ 提炼写 用户画像.md（+ 同步 CLAUDE.md/AGENTS.md）
 ⑤ 日常使用：
@@ -36,7 +36,7 @@ description: >-
 ```
 
 - **路径**：vault 位置在 ② 初始化时定一次（用户指定 or 默认）并记进 `~/.second-brain-obsidian/vault_path`；之后读取 / 更新都固定读它，不再问。
-- **引擎**：全程 **agent 直接读写 Obsidian vault 的 markdown**（格式见 `vault-format.md`），**核心零 Python**；语音问答 + 本地自动提炼用 Python（**装 skill 时自动备齐，见 §0**）。
+- **引擎**：vault 读写全程 **agent 直接读写 markdown**（格式见 `vault-format.md`，这部分零 Python）；但**自动提炼（默认开）+ 语音问答需要 Python**（**装 skill 时自动备齐，见 §0**）。
 
 ## 何时做什么
 
@@ -55,7 +55,7 @@ description: >-
 
 ## 0. 装 Python（安装 skill 时先做一次）
 
-语音问答 + 本地自动提炼要用 Python（核心不依赖它）。安装时一次性备齐，**按需自动装，别让用户手配**：
+本地自动提炼（默认开）+ 语音问答要用 Python。安装时一次性备齐，**按需自动装，别让用户手配**：
 
 1. **检测**：跑 `python3 --version`（Windows 退 `python --version` → `py --version`）。能打印版本号 → 已就绪，进 §A。
 2. **没有 → 按需安装**（按本机 OS）：
@@ -151,12 +151,12 @@ description: >-
 
 ---
 
-## Python 文件（核心不依赖）
+## Python 文件（自动提炼默认开 + 语音用）
 
 - **语音问答（可选）**：`scripts/voice/bridge.py` + `scripts/voice/web/index.html`（打电话式 STT + 对话历史）、`scripts/keys.py`（语音密钥，存 `~/.second-brain-obsidian/secrets.env`，chmod 600）、`scripts/store.py`（语音小工具）。
 - **本地自动提炼（默认开）**：`scripts/install.py`（注册本地 hook：SessionEnd 或 Stop 两模式 + 记 vault 路径）、`scripts/hook_entry.py`（对话提炼写**本地** vault，纯本地、不外传）。
 
-核心功能（建库 / 采访 / 读取 / 在场更新 / 知识维护）全是 agent 直接读写 vault markdown，按 `references/vault-format.md`，**不依赖 Python**。Python 给：语音问答（可选）+ 本地自动提炼（默认开，§0 自动备齐）。
+建库 / 采访 / 读取 / 在场更新 / 知识维护全是 agent 直接读写 vault markdown，按 `references/vault-format.md`（这部分不靠 Python）。**但需要 Python**：本地自动提炼（默认开）+ 语音问答（可选）（§0 自动备齐）。
 
 ## 注意
 

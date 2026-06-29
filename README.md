@@ -2,7 +2,7 @@
 
 > 把「**你是谁**（人格画像）+ **你知道什么**（知识库）」沉淀进 Obsidian，让任何 AI agent 用**你的风格 + 你的知识**做事——越用越像你。
 
-一个 **agent-native** 的「第二大脑」skill：核心由 agent 直接读写 Obsidian markdown 完成，**不依赖 Python**。三家 agent（**Claude Code / Codex / Hermes**）共用同一份 vault。
+一个 **agent-native** 的「第二大脑」skill：vault 是 Obsidian markdown、由 agent 直接读写。**需要 Python**——自动提炼（默认开）和语音问答都依赖它（安装时自动检测、按需装好，你不用手配）。三家 agent（**Claude Code / Codex / Hermes**）共用同一份 vault。
 
 落地页：<https://second-brain-obsidian.pages.dev>
 
