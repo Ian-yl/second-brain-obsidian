@@ -25,7 +25,7 @@
   }
   ::selection{background:var(--green);color:#062a12}
 
-  .call{max-width:560px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;padding:0 20px 20px}
+  .call{max-width:720px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;padding:0 20px 20px}
 
   /* top bar */
   .bar{display:flex;align-items:center;justify-content:space-between;padding:20px 2px}
@@ -223,7 +223,13 @@ async function speak(text) {
 function listen(userBubble) {
   return new Promise((resolve) => {
     let text = "", got = false, timer = null, stopped = false;
-    const show = (t) => { $("live").textContent = t; if (userBubble) userBubble.textContent = t || "…"; };
+    const show = (t) => {
+      $("live").textContent = t;
+      if (userBubble) {
+        userBubble.textContent = t || "…";
+        const h = $("history"); h.scrollTop = h.scrollHeight;   // 气泡随识别变高 → 即时滚到底，别顶出下边界
+      }
+    };
     const arm = () => {
       clearTimeout(timer);
       timer = setTimeout(end, got ? END_SILENCE_MS : INITIAL_SILENCE_MS);
