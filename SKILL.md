@@ -19,24 +19,24 @@ description: >-
 知识按 **Inputs / Process / Outputs / Feedback 四层**（卡帕西式）组织。
 
 **全程 agent 直接读写 vault markdown**——建库 / 采访 / 读取 / 更新 / 知识维护都由你（agent）用自带工具（读写文件 / WebFetch）完成，**写入格式严格照 `SK/references/vault-format.md`**（去重 / 四层归类 / frontmatter 全在里面）。
-**Python 只给两个可选功能用**：语音问答（`voice/`）和本地自动更新（`install.py` + `hook_entry.py`）；没 Python 时这俩不可用、**核心照常**。（`SK` = 本 skill 目录；命令里 `python3` 在 Windows 用 `python` / `py`。）
+**Python 给两个功能用**：语音问答（可选）和本地自动提炼（默认开，§0 自动备齐）；**核心不依赖 Python**。（`SK` = 本 skill 目录；命令里 `python3` 在 Windows 用 `python` / `py`。）
 
 ## 完整流程
 
 ```
 ① 安装         用户自己把这个 skill 装好
-② 环境准备     §0：检测 Python → 没有就按需装 → 验证能用 → 不行就重装（语音 + 自动更新要用；核心不依赖）
+② 环境准备     §0：检测 Python → 没有就按需装 → 验证能用 → 不行就重装（语音 + 自动提炼要用；核心不依赖）
 ③ 初始化建库   §A：认 Obsidian（自动）→ vault 位置（用户指定 / 默认）→ 建骨架 → 记录路径到 vault_path
 ④ 采访写画像   §B：agent 出 6 维约 15 题 → 用户答（文字 / 语音）→ 提炼写 用户画像.md（+ 同步 CLAUDE.md/AGENTS.md）
 ⑤ 日常使用：
    · 读取       §读取：vault 内 CLAUDE.md（Claude）/ AGENTS.md（Codex）原生自动；别处说「加载第二大脑」
-   · 更新       §日常维护 / §自动更新：在场提炼 · 手动「更新第二大脑」· 本地 SessionEnd hook 自动
+   · 更新       §自动提炼（默认一直开·SessionEnd hook）每次对话结束自动写本地库 + 在场提炼 + 手动「更新第二大脑」
    · 知识维护   §知识库维护：喂 URL（WebFetch）/ 整理收件箱 / 体检
    · 深度补充   §C：/insights（Claude Code）或在场提炼（Codex）
 ```
 
 - **路径**：vault 位置在 ② 初始化时定一次（用户指定 or 默认）并记进 `~/.second-brain-obsidian/vault_path`；之后读取 / 更新都固定读它，不再问。
-- **引擎**：全程 **agent 直接读写 Obsidian vault 的 markdown**（格式见 `vault-format.md`），**核心零 Python**；语音问答 + 本地自动更新用 Python（**装 skill 时自动备齐，见 §0**）。
+- **引擎**：全程 **agent 直接读写 Obsidian vault 的 markdown**（格式见 `vault-format.md`），**核心零 Python**；语音问答 + 本地自动提炼用 Python（**装 skill 时自动备齐，见 §0**）。
 
 ## 何时做什么
 
@@ -47,14 +47,14 @@ description: >-
 | 「分析我的会话」（深度） | Claude Code：`/insights` 分析 → 入库；Codex：在场提炼（§日常维护）|
 | 「收录链接 / 整理收件箱 / 体检知识库」 | 知识库维护套件（见 §知识库维护）|
 | 「加载第二大脑」 | 读取画像注入（在 vault 里也原生自动）|
-| 日常对话（已装好） | **读取**：vault 内原生自动（CLAUDE.md/AGENTS.md）；**更新**：agent 在场提炼直接写库 |
+| 日常对话（已装好） | **读取**：vault 内原生自动（CLAUDE.md/AGENTS.md）；**更新**：每次对话结束自动提炼写本地库（+ 在场提炼）|
 | 「设置语音密钥」 | 见 §语音密钥（需 Python）|
 
 ---
 
 ## 0. 装 Python（安装 skill 时先做一次）
 
-语音问答 + 本地自动更新要用 Python（核心不依赖它）。安装时一次性备齐，**按需自动装，别让用户手配**：
+语音问答 + 本地自动提炼要用 Python（核心不依赖它）。安装时一次性备齐，**按需自动装，别让用户手配**：
 
 1. **检测**：跑 `python3 --version`（Windows 退 `python --version` → `py --version`）。能打印版本号 → 已就绪，进 §A。
 2. **没有 → 按需安装**（按本机 OS）：
@@ -62,16 +62,16 @@ description: >-
    - Windows：`winget install -e --id Python.Python.3.12`
    - Linux：`sudo apt update && sudo apt install -y python3`
 3. **验证能用**：再跑 `python3 --version` 且 `python3 -c "import json,os,sys,subprocess"` 都成功 = 可用。
-4. **不能用 → 重装一次**（`brew reinstall python3` / 重跑 winget / `apt install --reinstall -y python3`）后再验证。仍失败 → 让用户去 https://www.python.org/downloads/ 手动装；期间核心功能照常，语音 + 自动更新待 Python 就绪后即可用。
+4. **不能用 → 重装一次**（`brew reinstall python3` / 重跑 winget / `apt install --reinstall -y python3`）后再验证。仍失败 → 让用户去 https://www.python.org/downloads/ 手动装；期间核心功能照常，语音 + 自动提炼待 Python 就绪后即可用。
 
 ## A. 建库（一次）
 
 你（agent）直接建库，按 `SK/references/vault-format.md`：
 1. **认 Obsidian（自动）**：检测本机 Obsidian 装没装（mac `/Applications/Obsidian.app` 等、Win `%LOCALAPPDATA%\Programs\obsidian`）。没装 → 提示可去 https://obsidian.md（vault 是纯 markdown，不装也能读写）。
 2. **库放哪**：**用户指定就用用户指定的路径；不指定就用默认**（mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，重名加 `-2/-3`）。已有库 → 问「复用 / 新建」。
-3. **建骨架 + 记录路径**：`mkdir` vault + `Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/app.json`（`{}`）+ 空骨架 `用户画像.md` / `CLAUDE.md`+`AGENTS.md` / `_索引.md`；**把最终 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`**（之后读取 / 自动更新都靠它定位，不再问）。
+3. **建骨架 + 记录路径**：`mkdir` vault + `Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/app.json`（`{}`）+ 空骨架 `用户画像.md` / `CLAUDE.md`+`AGENTS.md` / `_索引.md`；**把最终 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`**（之后读取 / 自动提炼都靠它定位，不再问）。
 4. 接着做人格问答（§B）写画像。
-5. **（可选·有 Python）开自动更新**：`python3 SK/scripts/install.py`（读第 3 步记录的路径，注册本地 SessionEnd hook → 每次对话结束自动提炼写 Obsidian）。
+5. **开自动提炼（默认就开，不是可选）**：跑 `python3 SK/scripts/install.py`（读第 3 步记录的路径，注册本地 SessionEnd hook）→ 此后**每次对话结束都自动把对话提炼进本地 Obsidian**（§0 已备好 Python）。
 
 > Obsidian 可选：vault 就是 markdown 文件夹，装了 Obsidian 能可视化浏览（https://obsidian.md），没装也照常读写。
 
@@ -102,21 +102,21 @@ description: >-
 
 ## 日常维护（在场提炼）
 
-你在对话中得知用户的**新**画像特征 / 决策 / 观点 / 方法 / 知识（现有库没有、且有长期价值）时，**主动提炼并写进 vault**——严格按 `SK/references/vault-format.md`：
+你在对话中得知用户的**新**画像特征 / 决策 / 观点 / 方法 / 知识 / 在做的项目 / 自己搭建·运营的系统工具（现有库没有、且有长期价值）时，**主动提炼并写进 vault**——严格按 `SK/references/vault-format.md`：
 - 画像 → `用户画像.md` 对应维度（去重 + 记变更日志）；
 - 知识 → `Knowledge/<层>/<slug>.md`（四层归类 + 同 slug 合并）；
 - 改完**同步重写** `CLAUDE.md` + `AGENTS.md` + `_索引.md`。
-只收确有依据的；忽略密钥 / 一次性闲聊。你本就有对话上下文，直接提炼直接写。用户说「更新第二大脑」时一并补全。
-> 深度分析走 `/insights`（§C）。想要**每次对话结束自动**提炼（不靠在场/手动）见 §自动更新。
+**任何话题都收**（含搭建本系统、项目、闲聊里的真实信息）——只要关于用户、有保留价值；唯一例外：明文密钥 / token 脱敏不写。你本就有对话上下文，直接提炼直接写。用户说「更新第二大脑」时一并补全。
+> 深度分析走 `/insights`（§C）。**每次对话结束的自动提炼默认就开**（见 §自动提炼）——在场提炼是它之外的即时补充。
 
-## 自动更新（可选·纯本地 hook）
+## 自动提炼（默认一直开·纯本地，写进你的 Obsidian）
 
-要「**每次对话结束自动**提炼进 vault」（不靠 agent 在场顺手、也不靠手动）→ 注册一个**本地** SessionEnd hook：`python3 SK/scripts/install.py`（**vault 路径固定取自初始化建库时的记录，不接受路径参数**；要换库就重新初始化）。
-之后每次对话结束，后台用 `claude -p` / `codex exec`（**带 `--strict-mcp-config`，不加载任何 MCP**）读本次对话、按 `vault-format.md` 把新信息提炼进 vault。
-- **纯本地、零外传**：只写你电脑里的 vault markdown，不上传任何东西（`--strict-mcp-config` 已让子 agent 不加载任何 MCP，只读对话、写 vault 文件）。
-- 需要 **Python**（hook 胶水）+ `claude`/`codex` CLI（提炼引擎，默认 haiku 省钱）。
+**默认就开**（§A 第 5 步已注册本地 SessionEnd hook；路径取自初始化记录）。此后**每次对话结束**，后台用 `claude -p` / `codex exec`（**带 `--strict-mcp-config`，不加载任何 MCP**）读本次对话、按 `vault-format.md` 把信息提炼进你的本地 vault。
+- **收什么**：关于用户、有保留价值的都收——**任何话题都不跳过**（含搭建本系统、项目、闲聊里的真实信息）；唯一例外：明文密钥 / token 脱敏不写。
+- **纯本地、零外传**：只写你电脑里的 Obsidian markdown，不上传任何东西（`--strict-mcp-config` 让子 agent 不加载任何 MCP，只读对话、写 vault 文件）。这和 HelixMesh 无关——HelixMesh 只是下载本 skill 的平台。
+- 需要 **Python**（hook 胶水）+ `claude`/`codex` CLI（提炼引擎，默认 haiku 省钱）——§0 已自动备齐。
 - 防递归：提炼子 agent 自身的 SessionEnd 不再触发（`SBO_PROCESSING` 护栏）。
-- 关掉：`python3 SK/scripts/install.py --remove`。
+- 关掉（如确需）：`python3 SK/scripts/install.py --remove`。
 
 ## 读取（注入画像）
 
@@ -146,12 +146,12 @@ description: >-
 
 ---
 
-## Python 文件（可选功能用·核心不依赖）
+## Python 文件（核心不依赖）
 
-- **语音问答**：`scripts/voice/bridge.py` + `scripts/voice/web/index.html`（打电话式 STT + 对话历史）、`scripts/keys.py`（语音密钥，存 `~/.second-brain-obsidian/secrets.env`，chmod 600）、`scripts/store.py`（语音小工具）。
-- **本地自动更新（可选）**：`scripts/install.py`（注册本地 SessionEnd hook + 记 vault 路径）、`scripts/hook_entry.py`（对话结束后台提炼写 vault，纯本地、不外传）。
+- **语音问答（可选）**：`scripts/voice/bridge.py` + `scripts/voice/web/index.html`（打电话式 STT + 对话历史）、`scripts/keys.py`（语音密钥，存 `~/.second-brain-obsidian/secrets.env`，chmod 600）、`scripts/store.py`（语音小工具）。
+- **本地自动提炼（默认开）**：`scripts/install.py`（注册本地 SessionEnd hook + 记 vault 路径）、`scripts/hook_entry.py`（对话结束后台把对话提炼写**本地** vault，纯本地、不外传）。
 
-核心功能（建库 / 采访 / 读取 / 在场更新 / 知识维护）全是 agent 直接读写 vault markdown，按 `references/vault-format.md`，**不依赖 Python**。Python 只给上面两个**可选**功能用。
+核心功能（建库 / 采访 / 读取 / 在场更新 / 知识维护）全是 agent 直接读写 vault markdown，按 `references/vault-format.md`，**不依赖 Python**。Python 给：语音问答（可选）+ 本地自动提炼（默认开，§0 自动备齐）。
 
 ## 注意
 

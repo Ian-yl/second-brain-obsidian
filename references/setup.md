@@ -1,18 +1,19 @@
 # 安装与配置
 
-> 核心功能（建库 / 采访 / 读取 / 更新 / 知识维护）由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`），不需要 Python。**Python 用于语音问答 + 本地自动更新；安装 skill 时 agent 自动检测并按需装好（检测 → 装 → 验证 → 不行重装），你无需手配。**
+> 核心功能（建库 / 采访 / 读取 / 更新 / 知识维护）由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`），不需要 Python。**Python 用于语音问答（可选）+ 本地自动提炼（默认开）；安装 skill 时 agent 自动检测并按需装好（检测 → 装 → 验证 → 不行重装），你无需手配。**
 
 ## 1. 前提
 - 一个支持的 agent：**Claude Code / Codex**。
 - （可选）**Obsidian**：vault 就是 markdown 文件夹，装了能可视化浏览（https://obsidian.md），没装也照常读写。
-- **Python 3.8+**（语音问答 + 本地自动更新用；核心不依赖）：**安装 skill 时 agent 自动检测，没有就按需装、装完验证、不行重装**——你不用手动配。失败兜底：手动装 https://www.python.org/downloads/（Win 也可 Microsoft Store）。
+- **Python 3.8+**（语音问答 + 本地自动提炼用；核心不依赖）：**安装 skill 时 agent 自动检测，没有就按需装、装完验证、不行重装**——你不用手动配。失败兜底：手动装 https://www.python.org/downloads/（Win 也可 Microsoft Store）。
 - 系统 macOS / Windows 都支持。
 
 ## 2. 建库（agent 直接做）
 在 agent 对话里说「安装第二大脑 / 初始化第二大脑」，agent 会：
 - 问你库放哪（默认 mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，或你指定）；
 - 按 `vault-format.md` 建 vault：`Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md` / `_索引.md`；
-- 然后做人格问答（采访）写画像。
+- 然后做人格问答（采访）写画像；
+- **默认开启本地自动提炼**：注册 SessionEnd hook → 此后每次对话结束，自动把对话提炼进本地 vault（纯本地、不外传；需 Python，已自动备好）。
 > 在 vault 目录里开 Claude Code 会**原生自动读 `CLAUDE.md`**、Codex 读 `AGENTS.md`（两份同内容）——这就是默认的「读取注入」。
 
 ## 3. 语音问答密钥（仅语音·需 Python）

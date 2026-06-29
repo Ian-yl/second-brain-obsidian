@@ -16,7 +16,7 @@
 
 ## 2. 架构
 
-全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault；**Python 用于语音问答 + 本地自动更新（安装 skill 时自动检测并按需装好：检测 → 装 → 验证 → 不行重装），核心不依赖**。
+全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault；**Python 用于语音问答（可选）+ 本地自动提炼（默认开；安装时自动检测并按需装好 Python：检测 → 装 → 验证 → 不行重装），核心不依赖**。
 
 ```
 second-brain-obsidian/
@@ -26,11 +26,11 @@ second-brain-obsidian/
 │   ├── framework.md               # 人格问答的 6 维度框架 + 种子问题
 │   └── setup.md                   # 安装与配置
 ├── agents/openai.yaml             # Codex 清单
-└── scripts/                       # 可选功能（核心不依赖）：语音 + 本地自动更新
+└── scripts/                       # 核心不依赖：语音问答(可选) + 本地自动提炼(默认开)
     ├── voice/bridge.py + web/index.html   # 打电话式语音问答（Azure STT + MiniMax TTS + 对话历史）
     ├── keys.py                    # 语音密钥读写（secrets.env，chmod 600）
     ├── store.py                   # 语音小工具（密钥路径 / 原子写 / 跨平台后台派生）
-    ├── install.py                 # 注册本地 SessionEnd hook + 记 vault 路径（可选·本地自动更新）
+    ├── install.py                 # 注册本地 SessionEnd hook + 记 vault 路径（默认开·本地自动提炼）
     └── hook_entry.py              # 对话结束后台提炼写 vault（纯本地、不外传；带 --strict-mcp-config 不加载 MCP）
 
 <vault>/                           # agent 建/复用；mac=iCloud Obsidian 目录、Windows=~/Documents
@@ -62,9 +62,9 @@ agent 问用户库放哪 → 按 `vault-format.md` 建 vault 骨架：`Knowledge
 ### 4.2 采访（人格问答）
 agent 自己出题，覆盖 6 维度、共约 15 题（框架见 `framework.md`）。用户文字一次性填，或实时语音作答（§5）。agent 把答案提炼成画像，写进 `用户画像.md` + 同步 `CLAUDE.md`/`AGENTS.md`。
 
-### 4.3 更新（在场提炼 / 可选本地自动）
+### 4.3 更新（自动提炼默认开 + 在场提炼）
 对话中得知用户**新**画像/知识（库里没有、有长期价值）时，agent 主动提炼，按 `vault-format.md` 写进 vault：画像归维度（去重 + 变更日志），知识四层归类（同 slug 合并），同步 `CLAUDE.md`/`AGENTS.md` + `_索引.md`。
-**可选·本地自动**：跑 `install.py`（vault 路径取自初始化记录）注册本地 SessionEnd hook → 每次对话结束后台用 `claude -p`/`codex exec`（带 `--strict-mcp-config`，不加载 MCP）提炼写 vault。**纯本地、零外传**；需要 Python + `claude`/`codex` CLI。
+**默认开·本地自动**：建库时跑 `install.py`（vault 路径取自初始化记录）注册本地 SessionEnd hook → 此后**每次对话结束**后台用 `claude -p`/`codex exec`（带 `--strict-mcp-config`，不加载 MCP）读对话、按 vault-format 提炼写 vault；**任何话题都收**（含搭建本系统、项目、闲聊），仅明文密钥/token 脱敏。**纯本地、零外传**；需要 Python + `claude`/`codex` CLI（§0 自动备齐）。
 
 ### 4.4 分析会话（深度补充）
 - **Claude Code**：用户在输入框打 `/insights 分析我的会话`（斜杠命令只有用户能触发）→ 报告落盘 `~/.claude/usage-data/report-*.html` → agent 把报告文本直接提炼入库。
