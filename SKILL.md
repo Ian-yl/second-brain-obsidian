@@ -29,10 +29,10 @@ description: >-
 ③ 初始化建库   §A：认 Obsidian（自动）→ vault 位置（用户指定 / 默认）→ 建骨架 → 记录路径到 vault_path
 ④ 采访写画像   §B：agent 出 6 维约 15 题 → 用户答（文字 / 语音）→ 提炼写 用户画像.md（+ 同步 CLAUDE.md/AGENTS.md）
 ⑤ 日常使用：
-   · 读取       §读取：vault 内 CLAUDE.md（Claude）/ AGENTS.md（Codex）原生自动；别处说「加载第二大脑」
+   · 读取       §读取：vault 内 CLAUDE.md（Claude）/ AGENTS.md（Codex · Hermes）原生自动；别处说「加载第二大脑」
    · 更新       §自动提炼（默认开·时机=会话结束 / 每条回复 二选一）自动写本地库 + 在场提炼 + 手动「更新第二大脑」
    · 知识维护   §知识库维护：喂 URL（WebFetch）/ 整理收件箱 / 体检
-   · 深度补充   §C：/insights（Claude Code）或在场提炼（Codex）
+   · 深度补充   §C：/insights（Claude Code）或在场提炼（Codex · Hermes）
 ```
 
 - **路径**：vault 位置在 ② 初始化时定一次（用户指定 or 默认）并记进 `~/.second-brain-obsidian/vault_path`；之后读取 / 更新都固定读它，不再问。
@@ -48,6 +48,7 @@ description: >-
 | 「收录链接 / 整理收件箱 / 体检知识库」 | 知识库维护套件（见 §知识库维护）|
 | 「加载第二大脑」 | 读取画像注入（在 vault 里也原生自动）|
 | 日常对话（已装好） | **读取**：vault 内原生自动（CLAUDE.md/AGENTS.md）；**更新**：自动提炼写本地库（会话结束 / 每条回复，见 §自动提炼）+ 在场提炼 |
+| 「改成实时更新 / 每条回复就入库」「改成结束对话再更新 / 别每条都跑」 | **切提炼时机**：跑 `install.py --mode stop`（实时·每回合）或 `--mode end`（会话结束一次）→ 告知已切。当前若是 **Hermes**，再提醒用户重跑一次 `hermes --accept-hooks`（切模式换了事件，需重新同意）|
 | 「设置语音密钥」 | 见 §语音密钥（需 Python）|
 
 ---
@@ -88,7 +89,7 @@ description: >-
 ## C. 分析会话（深度补充）
 
 - **Claude Code（有 `/insights`）**：`/insights` 是内置斜杠命令（只能用户在输入框打，agent 调不了）。引导用户发 `/insights 分析我的会话`：命令生成报告落盘 `~/.claude/usage-data/report-*.html`，后半句触发本 skill 让你接管 → 你把报告 / insight 文本**直接提炼**成画像 deltas + 知识条目，按 `vault-format.md` 写进 vault（同 §日常维护）。
-- **Codex（没有 `/insights`）**：会话沉淀走**在场提炼**（§日常维护，任何 agent 都行）——你在对话中发现用户新信息就直接写库；要回顾分析，让用户把要提炼的内容贴给你 / 指一个文件，你照样提炼入库。
+- **Codex / Hermes（没有「分析会话内容」的 `/insights`；Hermes 的 `hermes insights` 只是用量统计）**：会话沉淀走**在场提炼**（§日常维护，任何 agent 都行）——你在对话中发现用户新信息就直接写库；要回顾分析，让用户把要提炼的内容贴给你 / 指一个文件，你照样提炼入库。
 > ❗ **不读 `~/.claude` / `~/.codex` 的原始 transcript**——只提炼用户给的内容 / `/insights` 产出。
 > ⚠️ agent **运行不了** `/insights`（斜杠命令只有用户能触发）；别在代码里尝试调它。
 
@@ -114,17 +115,17 @@ description: >-
 **默认就开**（§A 第 5 步注册本地 hook；路径取自初始化记录）。**两种时机，初始化时让用户选**：
 - **会话结束（`--mode end`，默认）**：SessionEnd 触发，读**整段**对话一次提炼。省（一次/会话）。
 - **每条回复后（`--mode stop`）**：Stop 触发，**增量**只提炼上次之后的新内容（进度标记防重复）。实时、更稳（会话没正常结束也不丢），但次数多。
-> 两者**收的内容一样全**，差在时机 + 成本。切换：重跑 `install.py --mode end|stop`（自动清旧的，不留两份）。Stop 在 Claude Code 完整支持；Codex 若无 Stop 钩子就用 end。
+> 两者**收的内容一样全**，差在时机 + 成本。切换：重跑 `install.py --mode end|stop`（自动清旧的，不留两份）。Stop 在 Claude Code 完整支持；Codex 若无 Stop 钩子就用 end。**Hermes**：跟 claude/codex 一样分两模式，写进 `~/.hermes/config.yaml`——end→`on_session_finalize`（整会话收尾一次，≈SessionEnd）、stop→`on_session_end`（每回合，≈Stop）；payload 只给 session_id，靠 `hermes sessions export` 取对话。首次需 `hermes --accept-hooks` 同意 shell hook，且先 `hermes model` 配好模型，提炼才会跑。
 
-触发后，后台用 `claude -p` / `codex exec`（**带 `--strict-mcp-config`，不加载任何 MCP**）读对话、按 `vault-format.md` 提炼进你的本地 vault。
+触发后，后台起提炼引擎（**`claude -p` / `codex exec` / `hermes -z`**，默认就用**当前会话的 agent**——hook 注册时已标记；claude/codex 带 `--strict-mcp-config` 不加载 MCP）读对话、按 `vault-format.md` 提炼进你的本地 vault。想强制某个引擎（如永远用 Hermes）：把引擎名或完整命令写进 `~/.second-brain-obsidian/engine`。
 - **收什么**：关于用户、有保留价值的都收——**任何话题都不跳过**（含搭建本系统、项目、闲聊）；唯一例外：明文密钥 / token 脱敏不写。
 - **纯本地、零外传**：只写你电脑里的 Obsidian markdown，不上传任何东西。和 HelixMesh 无关（它只是下载本 skill 的平台）。
-- 需要 **Python** + `claude`/`codex` CLI（默认 haiku 省钱）——§0 已自动备齐。防递归：`SBO_PROCESSING` 护栏。
+- 需要 **Python** + `claude`/`codex`/`hermes` 任一 CLI（claude 默认 haiku 省钱）——§0 已自动备齐。防递归：`SBO_PROCESSING` 护栏。
 - 关掉：`python3 SK/scripts/install.py --remove`。
 
 ## 读取（注入画像）
 
-- **vault 内·原生自动**：vault 根 `CLAUDE.md`（Claude Code）/ `AGENTS.md`（Codex）（两份同内容、画像每次同步重写）——在 vault 目录开对应 agent **原生自动读**。这是默认读取方式。
+- **vault 内·原生自动**：vault 根 `CLAUDE.md`（Claude Code）/ `AGENTS.md`（Codex、Hermes 都自动注入 `AGENTS.md`）（两份同内容、画像每次同步重写）——在 vault 目录开对应 agent **原生自动读**。这是默认读取方式。
 - **任何项目里·手动**：用户说「加载第二大脑」→ 你读 `<vault>/用户画像.md` + 相关 `Knowledge/` 笔记，注入上下文「像用户一样」回答。
 
 ## 语音问答（打电话式·需 Python）

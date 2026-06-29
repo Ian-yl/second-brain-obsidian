@@ -4,14 +4,15 @@
   --event end    SessionEnd：会话结束读【整段】对话、一次提炼（省）。
   --event stop   Stop（每条回复后）：【增量】只提炼上次之后的新内容（进度标记防重复）。
 
-后台起 `claude -p`/`codex exec` 子 agent，**带 `--strict-mcp-config`（不加载任何 MCP，纯本地）**，
-读对话、按 vault-format.md 把关于用户的信息写进 vault。不上传任何东西。
+后台起提炼子 agent（`claude -p` / `codex exec` / `hermes -z`，默认用触发本次 hook 的那个 agent；可用 `~/.second-brain-obsidian/engine` 文件强制；
+claude/codex 带 `--strict-mcp-config` 不加载 MCP），读对话、按 vault-format.md 写进本地 vault。不上传任何东西。
 防递归：提炼子 agent 自身的钩子靠 env SBO_PROCESSING 护栏直接退出。
 """
 import argparse
 import glob
 import json
 import os
+import shlex
 import shutil
 import subprocess
 import sys
@@ -21,6 +22,7 @@ import time
 RUNTIME = os.environ.get("SBO_RUNTIME_DIR") or os.path.expanduser("~/.second-brain-obsidian")
 VAULT_FILE = os.path.join(RUNTIME, "vault_path")          # 建库时记录的 vault 绝对路径
 PROGRESS_FILE = os.path.join(RUNTIME, "stop-progress.json")  # Stop 增量进度：{transcript: 已处理行数}
+ENGINE_FILE = os.path.join(RUNTIME, "engine")             # 可选：强制提炼引擎（引擎名 claude/codex/hermes 或完整命令）
 SKILL_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FORMAT_REF = os.path.join(SKILL_DIR, "references", "vault-format.md")
 IS_WINDOWS = os.name == "nt"
@@ -32,13 +34,48 @@ def _detach_kwargs():
     return {"start_new_session": True}
 
 
-def _engine():
-    """提炼引擎：有 claude → claude -p（不加载 MCP/不开浏览器）；否则 codex exec。没有则 None。"""
-    if shutil.which("claude"):
-        return ["claude", "-p", "--strict-mcp-config", "--no-chrome", "--model", "haiku"]
-    if shutil.which("codex"):
-        return ["codex", "exec"]
+_ENGINES = {
+    "claude": ["claude", "-p", "--strict-mcp-config", "--no-chrome", "--model", "haiku"],
+    "codex": ["codex", "exec"],
+    "hermes": ["hermes", "--yolo", "--ignore-rules", "-z"],   # 一次性无头；prompt 作 -z 的值
+}
+
+
+def _engine(agent=None):
+    """提炼引擎：engine 文件强制 > 当前会话 agent（hook 注册时标记）> 按可用性自动探测。没有则 None。"""
+    try:
+        pref = open(ENGINE_FILE, encoding="utf-8").read().strip()
+    except Exception:
+        pref = ""
+    if pref:                                        # ① 用户强制（引擎名 / 完整命令）
+        if pref in _ENGINES and shutil.which(pref):
+            return _ENGINES[pref]
+        return shlex.split(pref)                    # 完整自定义命令（任意 OpenAI 兼容 CLI 等）
+    if agent in _ENGINES and shutil.which(agent):   # ② 触发本次 hook 的那个 agent（默认）
+        return _ENGINES[agent]
+    for name in ("claude", "codex", "hermes"):      # ③ 兜底：按可用性
+        if shutil.which(name):
+            return _ENGINES[name]
     return None
+
+
+def _hermes_export(session_id):
+    """Hermes 会话存在 state.db；用其 CLI 导出该 session，把内部 messages 摊成【每条一行】JSONL。
+    （export 是「整 session 一行」，必须逐条摊开，_stop_chunk 才能按【消息】增量、不会永远只见 1 行。）失败→None。"""
+    hb = shutil.which("hermes") or os.path.expanduser("~/.local/bin/hermes")
+    safe = "".join(c for c in session_id if c.isalnum() or c in "-_")
+    out = os.path.join(RUNTIME, "hermes-" + safe + ".jsonl")
+    try:
+        r = subprocess.run([hb, "sessions", "export", "--session-id", session_id, "-"],
+                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=60)
+        sess = next((json.loads(ln) for ln in r.stdout.decode("utf-8", "replace").splitlines() if ln.strip()), None)
+        msgs = (sess or {}).get("messages") or []
+        with open(out, "w", encoding="utf-8") as f:
+            for m in msgs:
+                f.write(json.dumps(m, ensure_ascii=False) + "\n")
+    except Exception:
+        return None
+    return out if os.path.exists(out) and os.path.getsize(out) > 0 else None
 
 
 def _vault():
@@ -106,7 +143,8 @@ def main():
     if os.environ.get("SBO_PROCESSING"):   # 防递归：提炼子 agent 自身的钩子不再触发
         return
     ap = argparse.ArgumentParser()
-    ap.add_argument("--event", default="end")   # end（SessionEnd 整段）| stop（每条回复增量）
+    ap.add_argument("--event", default="end")    # end（SessionEnd 整段）| stop（每条回复增量）
+    ap.add_argument("--agent", default=None)      # 触发本次 hook 的 agent：claude|codex|hermes（注册时标记）
     args, _ = ap.parse_known_args()
     if args.event not in ("end", "stop"):
         return
@@ -116,6 +154,11 @@ def main():
     except Exception:
         payload = {}
     transcript = payload.get("transcript_path") or payload.get("transcriptPath")
+
+    # Hermes：on_session_end 的 payload 只给 session_id（无 transcript_path）→ 用其 CLI 把会话导成 JSONL
+    hermes = args.agent == "hermes" and not transcript and bool(payload.get("session_id"))
+    if hermes:
+        transcript = _hermes_export(payload["session_id"])
     if not transcript or not os.path.exists(transcript):
         return
 
@@ -123,14 +166,14 @@ def main():
     if not vault:
         return  # 还没建库 / 没记录 vault 路径
 
-    incremental = args.event == "stop"
+    incremental = args.event == "stop" or hermes   # Hermes 两事件都可能多次触发（stop 每回合 / end 每次会话收尾）→ 总是增量去重
     source = _stop_chunk(transcript) if incremental else transcript
     if not source:
         return  # stop 模式：无新内容
 
-    engine = _engine()
+    engine = _engine(args.agent)
     if engine is None:
-        return  # 没有 claude/codex 提炼引擎
+        return  # 没有可用提炼引擎（claude/codex/hermes）
 
     env = dict(os.environ, SBO_PROCESSING="1")   # 防递归护栏
     try:
