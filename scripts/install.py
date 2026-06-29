@@ -86,18 +86,53 @@ def _hermes_block(mode):
             f"{HM_END}\n")
 
 
+def _hooks_block_span(lines):
+    """config.yaml 文本里顶层 `hooks:` 块的 [start, end) 行号；无则 None。"""
+    start = next((i for i, l in enumerate(lines) if re.match(r"^hooks:\s*$", l)), None)
+    if start is None:
+        return None
+    end = len(lines)
+    for i in range(start + 1, len(lines)):
+        if lines[i] and not lines[i][0].isspace():   # 下一个顶层键（行首非空白）
+            end = i
+            break
+    return start, end
+
+
+def _strip_our_hermes_hook(text):
+    """移除本 skill 的 Hermes hook —— 靠命令含 `hook_entry.py` 认（**兼容 Hermes 重写 config 抹掉哨兵注释**），
+    顺带去残留哨兵。返回 (新文本, had_other)；had_other=True = hooks: 里还有【非本 skill】的 hook，不敢整块删。"""
+    text = re.sub(re.escape(HM_START) + r".*?" + re.escape(HM_END) + r"\n?", "", text, flags=re.S)
+    lines = text.split("\n")
+    span = _hooks_block_span(lines)
+    if span is None:
+        return text, False
+    start, end = span
+    block = lines[start + 1:end]                       # 不含 "hooks:" 行
+    cmds = [k for k, l in enumerate(block) if re.match(r"^\s+-\s*command:", l)]
+    others = 0
+    for idx, ck in enumerate(cmds):
+        seg = block[ck:(cmds[idx + 1] if idx + 1 < len(cmds) else len(block))]
+        if not any("hook_entry.py" in s for s in seg):
+            others += 1                                # 这条不是我们的
+    if others:
+        return text, True                              # 有别人的 hook → 不动整块
+    return "\n".join(lines[:start] + lines[end:]), False   # 全是我们的（或空）→ 删整个 hooks: 块
+
+
 def _register_hermes(mode=None, remove=False):
-    """Hermes 的 hook 在 config.yaml（YAML）。无 YAML 库 → 用哨兵托管块安全增删；备份 + 防重复 hooks: 键。"""
+    """Hermes 的 hook 在 config.yaml（YAML）。无 YAML 库 → 靠【命令特征】定位本 skill 的 hook 安全增删
+    （Hermes 会重写 config、抹掉哨兵注释，故不能只靠哨兵）；备份 + 不动用户自有 hook。"""
     if not os.path.isdir(os.path.dirname(HERMES_CONFIG)):
         return "skipped（未装 Hermes）"
     try:
         text = open(HERMES_CONFIG, encoding="utf-8").read() if os.path.exists(HERMES_CONFIG) else ""
     except Exception:
         return "error（读 config.yaml 失败）"
-    text = re.sub(re.escape(HM_START) + r".*?" + re.escape(HM_END) + r"\n?", "", text, flags=re.S)  # 移除旧托管块
+    text, had_other = _strip_our_hermes_hook(text)
+    if had_other and not remove:
+        return "manual（config.yaml 的 hooks: 含非本 skill 的 hook，请手动加一条 " + HERMES_EVENT.get(mode, "on_session_finalize") + "）"
     if not remove:
-        if re.search(r"(?m)^hooks:", text):   # 已有别的 hooks: 顶层键 → 不擅自合并 YAML，交还用户手动
-            return "manual（config.yaml 已有 hooks: 键，请手动加 on_session_end 一条）"
         if os.path.exists(HERMES_CONFIG):
             try: shutil.copy2(HERMES_CONFIG, HERMES_CONFIG + ".sbo-bak")   # 备份
             except Exception: pass
@@ -105,7 +140,7 @@ def _register_hermes(mode=None, remove=False):
     os.makedirs(os.path.dirname(HERMES_CONFIG), exist_ok=True)
     with open(HERMES_CONFIG, "w", encoding="utf-8") as f:
         f.write(text if text.endswith("\n") else text + "\n")
-    return "removed" if remove else f"registered（{HERMES_EVENT.get(mode, 'on_session_finalize')}，换事件后需重新 hermes --accept-hooks 同意）"
+    return "removed" if remove else f"registered（{HERMES_EVENT.get(mode, 'on_session_finalize')}；切模式后需重新 hermes --accept-hooks 同意）"
 
 
 def main():
