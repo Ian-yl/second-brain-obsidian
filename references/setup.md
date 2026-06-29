@@ -13,7 +13,7 @@
 - 问你库放哪（默认 mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，或你指定）；
 - 按 `vault-format.md` 建 vault：`Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md` / `_索引.md`；
 - 然后做人格问答（采访）写画像；
-- **默认开启本地自动提炼**：注册 SessionEnd hook → 此后每次对话结束，自动把对话提炼进本地 vault（纯本地、不外传；需 Python，已自动备好）。
+- **默认开启本地自动提炼**（初始化时选时机：会话结束 / 每条回复）：注册本地 hook → 自动把对话提炼进本地 vault（纯本地、不外传；需 Python，已自动备好）。切换/关：`install.py --mode end|stop` / `--remove`。
 > 在 vault 目录里开 Claude Code 会**原生自动读 `CLAUDE.md`**、Codex 读 `AGENTS.md`（两份同内容）——这就是默认的「读取注入」。
 
 ## 3. 语音问答密钥（仅语音·需 Python）
@@ -28,6 +28,7 @@ MINIMAX_API_HOST=https://api.minimax.chat
 > 密钥**只**放这里，绝不进 vault / git / 文档，权限设 600。
 
 启动语音：`python3 <skill>/scripts/voice/bridge.py --questions <q.json> --out <answers.json> --background`，浏览器打开它打印的 URL（Windows 把 `python3` 换成 `python` / `py`）。
+> **音色**：页面右上角可选**男声 / 女声**（默认女声）；想固定自定义音色可在 `secrets.env` 设 `MINIMAX_VOICE_ID`（页面选择优先于它）。
 
 ## 4. 卸载
 删掉 vault 目录 + `~/.second-brain-obsidian/`（语音密钥）即可。

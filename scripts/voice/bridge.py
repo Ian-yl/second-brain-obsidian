@@ -58,13 +58,17 @@ def issue_azure_token(secrets):
         return r.read().decode()
 
 
-def minimax_tts(text, secrets):
-    """MiniMax 文字转语音 → mp3 bytes（只用 API key，无需 GroupId，已实测）。"""
+VOICE_MAP = {"male": "male-qn-qingse", "female": "female-tianmei"}  # 页面男声/女声 → MiniMax voice_id
+
+
+def minimax_tts(text, secrets, voice=None):
+    """MiniMax 文字转语音 → mp3 bytes（只用 API key，无需 GroupId，已实测）。voice: male|female（页面选）。"""
     key = secrets.get("MINIMAX_API_KEY") or ""
     if not key:
         raise RuntimeError("no minimax key")
     host = (secrets.get("MINIMAX_API_HOST") or "https://api.minimax.chat").rstrip("/")
-    voice_id = secrets.get("MINIMAX_VOICE_ID") or "male-qn-qingse"
+    # 页面选的男/女优先；否则用自定义 MINIMAX_VOICE_ID；再否则默认男声
+    voice_id = VOICE_MAP.get(voice) or secrets.get("MINIMAX_VOICE_ID") or "male-qn-qingse"
     body = json.dumps({
         "model": "speech-01-turbo", "text": text, "stream": False,
         "voice_setting": {"voice_id": voice_id, "speed": 1.0, "vol": 1.0, "pitch": 0},
@@ -133,7 +137,7 @@ def make_handler(state, secrets):
                 payload = {}
             if self.path == "/tts":
                 try:
-                    audio = minimax_tts(payload.get("text", ""), secrets)
+                    audio = minimax_tts(payload.get("text", ""), secrets, payload.get("voice"))
                     return self._send(200, audio, "audio/mpeg")
                 except Exception as e:
                     return self._send(500, json.dumps({"error": str(e)}))

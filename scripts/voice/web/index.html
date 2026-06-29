@@ -25,13 +25,18 @@
   }
   ::selection{background:var(--green);color:#062a12}
 
-  .call{max-width:560px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;padding:0 20px}
+  .call{max-width:560px;margin:0 auto;height:100vh;height:100dvh;display:flex;flex-direction:column;padding:0 20px 20px}
 
   /* top bar */
   .bar{display:flex;align-items:center;justify-content:space-between;padding:20px 2px}
   .brand{display:flex;align-items:center;gap:9px;font-weight:700;font-size:15px;letter-spacing:.2px}
   .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green)}
   .progress{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+  .bar-right{display:flex;align-items:center;gap:12px}
+  .vsel{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+  .vsel button{font-family:inherit;font-size:12px;color:var(--muted);background:transparent;border:0;padding:5px 12px;cursor:pointer;transition:background .2s,color .2s}
+  .vsel button.on{background:var(--green);color:#052e16;font-weight:600}
+  .ended .orb-wrap{display:none}
   .progress:empty{display:none}
 
   /* stage */
@@ -106,7 +111,13 @@
   <main class="call">
     <header class="bar">
       <div class="brand"><span class="dot" aria-hidden="true"></span>第二大脑 · 语音采集</div>
-      <div id="progress" class="progress"></div>
+      <div class="bar-right">
+        <div class="vsel" id="vsel" role="group" aria-label="选择音色">
+          <button type="button" data-v="male">男声</button>
+          <button type="button" data-v="female" class="on">女声</button>
+        </div>
+        <div id="progress" class="progress"></div>
+      </div>
     </header>
 
     <section class="stage">
@@ -129,6 +140,20 @@
 <script>
 const $ = (id) => document.getElementById(id);
 let questions = [], recognizer = null, hung = false, ttsAudio = null, micStream = null;
+
+// 音色选择（男/女，默认女声）
+let voicePref = (function(){ try { return localStorage.getItem('sbo_voice') || 'female'; } catch (e) { return 'female'; } })();
+function voiceChoice(){ return voicePref; }
+(function(){
+  const sel = document.getElementById('vsel'); if (!sel) return;
+  const sync = () => sel.querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === voicePref));
+  sync();
+  sel.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    voicePref = b.dataset.v; try { localStorage.setItem('sbo_voice', voicePref); } catch (_) {}
+    sync();
+  });
+})();
 
 const INITIAL_SILENCE_MS = 12000;  // 答题前可思考的等待
 const END_SILENCE_MS = 2500;       // 说完停顿多久算「这题答完」自动进下一题
@@ -173,7 +198,7 @@ async function speak(text) {
     const ctrl = new AbortController();
     const ft = setTimeout(() => ctrl.abort(), 8000);   // /tts 抓取最多 8s
     const r = await fetch("/tts", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text }), signal: ctrl.signal });
+      body: JSON.stringify({ text, voice: voiceChoice() }), signal: ctrl.signal });
     clearTimeout(ft);
     if (r.ok) {
       const url = URL.createObjectURL(await r.blob());
@@ -247,7 +272,7 @@ async function finish(reason) {
   reason = reason || "completed";
   try { if (recognizer) recognizer.stopContinuousRecognitionAsync(); } catch (e) {}
   try { speechSynthesis.cancel(); if (ttsAudio) ttsAudio.pause(); } catch (e) {}
-  setOrb(""); document.body.classList.remove("calling"); $("progress").textContent = ""; $("live").textContent = ""; $("status").textContent = "";
+  setOrb(""); document.body.classList.add("ended"); $("progress").textContent = ""; $("live").textContent = ""; $("status").textContent = "";
   $("ctl").style.display = "none";
   $("q").textContent = reason === "completed" ? "通话结束，谢谢！正在生成你的第二大脑…"
                      : reason === "hangup"    ? "你主动结束了，已答的部分会保存。"

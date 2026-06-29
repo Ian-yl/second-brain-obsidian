@@ -30,7 +30,7 @@ description: >-
 ④ 采访写画像   §B：agent 出 6 维约 15 题 → 用户答（文字 / 语音）→ 提炼写 用户画像.md（+ 同步 CLAUDE.md/AGENTS.md）
 ⑤ 日常使用：
    · 读取       §读取：vault 内 CLAUDE.md（Claude）/ AGENTS.md（Codex）原生自动；别处说「加载第二大脑」
-   · 更新       §自动提炼（默认一直开·SessionEnd hook）每次对话结束自动写本地库 + 在场提炼 + 手动「更新第二大脑」
+   · 更新       §自动提炼（默认开·时机=会话结束 / 每条回复 二选一）自动写本地库 + 在场提炼 + 手动「更新第二大脑」
    · 知识维护   §知识库维护：喂 URL（WebFetch）/ 整理收件箱 / 体检
    · 深度补充   §C：/insights（Claude Code）或在场提炼（Codex）
 ```
@@ -47,7 +47,7 @@ description: >-
 | 「分析我的会话」（深度） | Claude Code：`/insights` 分析 → 入库；Codex：在场提炼（§日常维护）|
 | 「收录链接 / 整理收件箱 / 体检知识库」 | 知识库维护套件（见 §知识库维护）|
 | 「加载第二大脑」 | 读取画像注入（在 vault 里也原生自动）|
-| 日常对话（已装好） | **读取**：vault 内原生自动（CLAUDE.md/AGENTS.md）；**更新**：每次对话结束自动提炼写本地库（+ 在场提炼）|
+| 日常对话（已装好） | **读取**：vault 内原生自动（CLAUDE.md/AGENTS.md）；**更新**：自动提炼写本地库（会话结束 / 每条回复，见 §自动提炼）+ 在场提炼 |
 | 「设置语音密钥」 | 见 §语音密钥（需 Python）|
 
 ---
@@ -71,7 +71,7 @@ description: >-
 2. **库放哪**：**用户指定就用用户指定的路径；不指定就用默认**（mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，重名加 `-2/-3`）。已有库 → 问「复用 / 新建」。
 3. **建骨架 + 记录路径**：`mkdir` vault + `Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/app.json`（`{}`）+ 空骨架 `用户画像.md` / `CLAUDE.md`+`AGENTS.md` / `_索引.md`；**把最终 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`**（之后读取 / 自动提炼都靠它定位，不再问）。
 4. 接着做人格问答（§B）写画像。
-5. **开自动提炼（默认就开，不是可选）**：跑 `python3 SK/scripts/install.py`（读第 3 步记录的路径，注册本地 SessionEnd hook）→ 此后**每次对话结束都自动把对话提炼进本地 Obsidian**（§0 已备好 Python）。
+5. **开自动提炼（默认就开）→ 让用户选时机**：问用户「自动提炼什么时候做？① **会话结束**（省，一次/会话） ② **每条回复后**（实时、更稳，次数多）」→ 按选择跑 `python3 SK/scripts/install.py --mode end`（①，默认）或 `--mode stop`（②）。它读第 3 步记录的路径、注册对应本地 hook → 此后自动把对话提炼进本地 Obsidian（§0 已备好 Python）。
 
 > Obsidian 可选：vault 就是 markdown 文件夹，装了 Obsidian 能可视化浏览（https://obsidian.md），没装也照常读写。
 
@@ -107,16 +107,20 @@ description: >-
 - 知识 → `Knowledge/<层>/<slug>.md`（四层归类 + 同 slug 合并）；
 - 改完**同步重写** `CLAUDE.md` + `AGENTS.md` + `_索引.md`。
 **任何话题都收**（含搭建本系统、项目、闲聊里的真实信息）——只要关于用户、有保留价值；唯一例外：明文密钥 / token 脱敏不写。你本就有对话上下文，直接提炼直接写。用户说「更新第二大脑」时一并补全。
-> 深度分析走 `/insights`（§C）。**每次对话结束的自动提炼默认就开**（见 §自动提炼）——在场提炼是它之外的即时补充。
+> 深度分析走 `/insights`（§C）。**自动提炼默认就开**（时机=会话结束 / 每条回复，见 §自动提炼）——在场提炼是它之外的即时补充。
 
-## 自动提炼（默认一直开·纯本地，写进你的 Obsidian）
+## 自动提炼（默认开·纯本地，写进你的 Obsidian）
 
-**默认就开**（§A 第 5 步已注册本地 SessionEnd hook；路径取自初始化记录）。此后**每次对话结束**，后台用 `claude -p` / `codex exec`（**带 `--strict-mcp-config`，不加载任何 MCP**）读本次对话、按 `vault-format.md` 把信息提炼进你的本地 vault。
-- **收什么**：关于用户、有保留价值的都收——**任何话题都不跳过**（含搭建本系统、项目、闲聊里的真实信息）；唯一例外：明文密钥 / token 脱敏不写。
-- **纯本地、零外传**：只写你电脑里的 Obsidian markdown，不上传任何东西（`--strict-mcp-config` 让子 agent 不加载任何 MCP，只读对话、写 vault 文件）。这和 HelixMesh 无关——HelixMesh 只是下载本 skill 的平台。
-- 需要 **Python**（hook 胶水）+ `claude`/`codex` CLI（提炼引擎，默认 haiku 省钱）——§0 已自动备齐。
-- 防递归：提炼子 agent 自身的 SessionEnd 不再触发（`SBO_PROCESSING` 护栏）。
-- 关掉（如确需）：`python3 SK/scripts/install.py --remove`。
+**默认就开**（§A 第 5 步注册本地 hook；路径取自初始化记录）。**两种时机，初始化时让用户选**：
+- **会话结束（`--mode end`，默认）**：SessionEnd 触发，读**整段**对话一次提炼。省（一次/会话）。
+- **每条回复后（`--mode stop`）**：Stop 触发，**增量**只提炼上次之后的新内容（进度标记防重复）。实时、更稳（会话没正常结束也不丢），但次数多。
+> 两者**收的内容一样全**，差在时机 + 成本。切换：重跑 `install.py --mode end|stop`（自动清旧的，不留两份）。Stop 在 Claude Code 完整支持；Codex 若无 Stop 钩子就用 end。
+
+触发后，后台用 `claude -p` / `codex exec`（**带 `--strict-mcp-config`，不加载任何 MCP**）读对话、按 `vault-format.md` 提炼进你的本地 vault。
+- **收什么**：关于用户、有保留价值的都收——**任何话题都不跳过**（含搭建本系统、项目、闲聊）；唯一例外：明文密钥 / token 脱敏不写。
+- **纯本地、零外传**：只写你电脑里的 Obsidian markdown，不上传任何东西。和 HelixMesh 无关（它只是下载本 skill 的平台）。
+- 需要 **Python** + `claude`/`codex` CLI（默认 haiku 省钱）——§0 已自动备齐。防递归：`SBO_PROCESSING` 护栏。
+- 关掉：`python3 SK/scripts/install.py --remove`。
 
 ## 读取（注入画像）
 
@@ -134,7 +138,7 @@ description: >-
    —— **必须加 `--background`**（不加是前台 serve、会一直卡住你）。它**秒返回 URL**、自动开浏览器；
    把 URL 以**可点击 markdown 链接**发给用户（如 `[🎙️ 打开语音问答](http://127.0.0.1:8765/)`），
    说明会自动弹浏览器、没弹就点链接，然后点页面的「开始通话」。
-4. 浏览器**像打电话**：MiniMax 音色自动朗读 → 自动聆听 → 停顿即下一题；**同步显示文字 + 对话历史**。
+4. 浏览器**像打电话**：MiniMax 音色自动朗读（页面右上角可选**男声 / 女声**，默认女声）→ 自动聆听 → 停顿即下一题；**同步显示文字 + 对话历史**。
 5. **等用户说「答完了」**（或 `/tmp/answers.json` 写出后）→ 你读 `answers` **直接提炼写画像**（同 §B 收尾）。
    - `/tmp/answers.json` 带 **`reason`**：`completed`(答完) / `hangup`(主动结束) → 正常入库；
      **`error` / `closed`（异常 / 中途关页面）→ 告诉用户「语音异常结束」，问要不要重试或转文字**，别当成功。
@@ -149,7 +153,7 @@ description: >-
 ## Python 文件（核心不依赖）
 
 - **语音问答（可选）**：`scripts/voice/bridge.py` + `scripts/voice/web/index.html`（打电话式 STT + 对话历史）、`scripts/keys.py`（语音密钥，存 `~/.second-brain-obsidian/secrets.env`，chmod 600）、`scripts/store.py`（语音小工具）。
-- **本地自动提炼（默认开）**：`scripts/install.py`（注册本地 SessionEnd hook + 记 vault 路径）、`scripts/hook_entry.py`（对话结束后台把对话提炼写**本地** vault，纯本地、不外传）。
+- **本地自动提炼（默认开）**：`scripts/install.py`（注册本地 hook：SessionEnd 或 Stop 两模式 + 记 vault 路径）、`scripts/hook_entry.py`（对话提炼写**本地** vault，纯本地、不外传）。
 
 核心功能（建库 / 采访 / 读取 / 在场更新 / 知识维护）全是 agent 直接读写 vault markdown，按 `references/vault-format.md`，**不依赖 Python**。Python 给：语音问答（可选）+ 本地自动提炼（默认开，§0 自动备齐）。
 
