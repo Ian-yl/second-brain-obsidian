@@ -11,14 +11,14 @@
 让加载它的 agent「用你的风格 + 调你的知识」做事 ≈ 复刻你。
 
 - **统一一份**：一份画像 + 一套知识，各 agent（Claude Code / Codex / Hermes）共享同一 vault。
-- **agent-native**：建库 / 采访 / 读取 / 更新 / 知识维护由 **agent 直接读写 vault markdown** 完成（这部分不靠 Python）；但**自动提炼（默认开）和语音需要 Python**（安装时自动备好）。写入格式见 `references/vault-format.md`。
-- **接入即初始化**：接入本 skill 且检测到没建库 → **主动发起**建库 + 采访（不等用户喊口令）；之后日常对话自动提炼。
-- **纯本地·非蠕虫**：只读用户自己刚结束的对话、只写用户自己的 Obsidian，零外传、不自我传播、可一键 `--remove` 关；SKILL.md/脚本里都显式声明，避免被误判为蠕虫。
+- **agent-native · 提示词驱动**：建库 / 采访 / 读取 / 提炼 / 知识维护全由 **agent 直接读写 vault markdown** 完成——**不装 hook、不跑后台进程、vault 读写零依赖**；**仅可选的语音问答用 Python**。写入格式见 `references/vault-format.md`。
+- **接入即初始化**：接入本 skill 且检测到没建库 → **主动发起**建库 + 采访（不等用户喊口令）；之后日常对话**每轮在场提炼**（agent 自检写库，不靠 hook）。
+- **纯本地·非蠕虫**：只读用户本次对话、只写用户自己的 Obsidian，零外传、不自我传播、**不装任何 hook / 后台进程**；SKILL.md/脚本里都显式声明，避免被误判为蠕虫。
 - **设计原则**：奥卡姆（能简则简、手动低频）+ 费曼（先采访讲清「你是谁」，再分析补缺）。
 
 ## 2. 架构
 
-全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault（vault 读写本身是纯 markdown、不靠 Python）；但**需要 Python——本地自动提炼（默认开）+ 语音问答（可选）都靠它；安装时自动检测并按需装好（检测 → 装 → 验证 → 不行重装），用户无需手配**。
+全程 agent 用自带工具（读写文件 / WebFetch）直接维护 vault——**提示词驱动、零依赖、不装 hook、不跑后台进程**。**唯一用到 Python 的是可选的语音问答**（不用语音就完全不需要 Python）。
 
 ```
 second-brain-obsidian/
@@ -28,12 +28,10 @@ second-brain-obsidian/
 │   ├── framework.md               # 人格问答的 6 维度框架 + 种子问题
 │   └── setup.md                   # 安装与配置
 ├── agents/openai.yaml             # Codex 清单
-└── scripts/                       # 需 Python：本地自动提炼(默认开) + 语音问答(可选)
+└── scripts/                       # 仅可选的语音问答用 Python（vault 读写 / 提炼都不用）
     ├── voice/bridge.py + web/index.html   # 打电话式语音问答（Azure STT + MiniMax TTS + 对话历史）
     ├── keys.py                    # 语音密钥读写（secrets.env，chmod 600）
-    ├── store.py                   # 语音小工具（密钥路径 / 原子写 / 跨平台后台派生）
-    ├── install.py                 # 注册本地 hook（SessionEnd 或 Stop）+ 记 vault 路径（默认开·本地自动提炼）
-    └── hook_entry.py              # 后台提炼写 vault（引擎=当前会话 agent claude/codex/hermes；纯本地、不外传）
+    └── store.py                   # 语音小工具（密钥路径 / 原子写 / 跨平台后台派生）
 
 <vault>/                           # agent 建/复用；mac=iCloud Obsidian 目录、Windows=~/Documents
 ├── 00-Home.md  用户画像.md  CLAUDE.md  AGENTS.md  .obsidian/
@@ -64,9 +62,10 @@ frontmatter（`type/updated/framework_version/tags`）+ 固定 8 段：概览 + 
 ### 4.2 采访（人格问答）
 agent 自己出题，覆盖 6 维度、共约 15 题（框架见 `framework.md`）。**采访开头先问要不要开语音**；用户文字一次性填，或实时语音作答（§5）。agent 把答案提炼成画像，写进 `用户画像.md` + 同步 `CLAUDE.md`/`AGENTS.md`。
 
-### 4.3 更新（自动提炼默认开 + 在场提炼）
-对话中得知用户**新**画像/知识（库里没有、有长期价值）时，agent 主动提炼，按 `vault-format.md` 写进 vault：画像归维度（去重 + 变更日志），知识按**自动判位**落 `<层>/<中文模式>/`（同标题合并、判不出进 00-Inbox），同步 `CLAUDE.md`/`AGENTS.md` + 更新 `00-Home.md`/对应 MOC。
-**默认开·本地自动（两模式，初始化时让用户选）**：跑 `install.py --mode end|stop`——`end`=SessionEnd 读整段一次提炼（省）；`stop`=Stop 每条回复后增量提炼（进度标记防重复，实时/更稳）。后台起提炼引擎（`claude -p`/`codex exec`/`hermes -z`，默认用当前会话的 agent（注册时标记），可用 `engine` 文件强制；claude/codex 带 `--strict-mcp-config` 不加载 MCP）读对话、按 vault-format 提炼写 vault；**任何话题都收**（含搭建本系统、项目、闲聊），仅明文密钥/token 脱敏。**纯本地、零外传**；需要 Python + `claude`/`codex`/`hermes` 任一 CLI（§0 自动备齐）。Hermes 的 hook 在 `~/.hermes/config.yaml`（end→`on_session_finalize` 整会话一次 / stop→`on_session_end` 每回合——注意 Hermes 命名反直觉：`on_session_end` 其实是**每回合**触发；payload 仅 session_id → 用 `hermes sessions export` 取对话、摊成每条一行增量；首次需 `hermes --accept-hooks` 同意）。**Hermes 会重写 config.yaml 抹掉注释**，故 `install.py` 靠**命令特征**（含 `hook_entry.py`）定位本 skill 的 hook 来增删、不依赖哨兵注释（`_strip_our_hermes_hook`，仅当 hooks: 含非本 skill 的 hook 才交还手动）；切模式 / 重写后 allowlist 失效，需重新 `--accept-hooks`。
+### 4.3 更新（在场提炼 · 每轮 · 提示词驱动）
+**唯一入库机制，不靠 hook**：agent **每轮回复后**过一遍这轮对话，得知用户**新**画像 / 知识（库里没有、有长期价值）就主动按 `vault-format.md` 写进 vault：画像归维度（去重 + 变更日志），知识按**自动判位**落 `<层>/<中文模式>/`（同标题合并、判不出进 00-Inbox），同步 `CLAUDE.md`/`AGENTS.md` + 更新 `00-Home.md`/对应 MOC。**任何话题都收**（含项目、闲聊），仅明文密钥/token 脱敏。
+- **纯提示词驱动**：靠 `SKILL.md` 的指令，**不注册任何系统 hook、不跑后台进程、vault 读写零依赖**——三家 agent（Claude/Codex/Hermes）行为一致。
+- **取舍**：靠 agent 每轮自觉（best-effort），不像 hook 那样机械必跑；换来零依赖、不被误判蠕虫、不占系统。用户也可主动说「更新第二大脑」补全。
 
 ### 4.4 分析会话（深度补充）
 - **Claude Code**：用户在输入框打 `/insights 分析我的会话`（斜杠命令只有用户能触发）→ 报告落盘 `~/.claude/usage-data/report-*.html` → agent 把报告文本直接提炼入库。
@@ -106,8 +105,8 @@ vault 内原生自动读 `CLAUDE.md`（Claude Code）/ `AGENTS.md`（Codex、Her
 | 项 | 决策 |
 |---|---|
 | 设计原则 | 奥卡姆（简、手动低频）+ 费曼（采访讲清 → 分析补缺）|
-| 实现模型 | agent-native：vault 读写由 agent 直接做（markdown，按 `vault-format.md`）；自动提炼（默认开）+ 语音需 Python |
-| 流程 | 建库 → 采访 → 写画像；更新靠在场提炼；读取靠原生 `CLAUDE.md`/`AGENTS.md` |
+| 实现模型 | agent-native · 提示词驱动：建库/采访/读取/提炼/维护全由 agent 直接读写 markdown（按 `vault-format.md`），不装 hook、零依赖；仅可选语音用 Python |
+| 流程 | 建库 → 采访 → 写画像；更新靠**每轮在场提炼**（提示词驱动·无 hook）；读取靠原生 `CLAUDE.md`/`AGENTS.md` |
 | 会话分析源 | Claude Code `/insights`；Codex / Hermes 在场提炼（都不读本地 transcript）|
 | 知识结构 | 四层（Inputs/Process/Outputs/Feedback）一级目录 × 六大工作模式按需中文子目录；行业映射页；写入按自动判位 |
 | 语音 | Azure STT + MiniMax TTS（男/女声可选，默认女声），打电话式，同步文字 + 对话历史；密钥仅 `secrets.env`；可选·用 Python |

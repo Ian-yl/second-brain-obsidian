@@ -1,19 +1,19 @@
 # 安装与配置
 
-> 建库 / 采访 / 读取 / 更新 / 知识维护由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`，这部分不靠 Python）。**但需要 Python——本地自动提炼（默认开）+ 语音问答都靠它；安装 skill 时 agent 自动检测并按需装好（检测 → 装 → 验证 → 不行重装），你无需手配。**
+> 建库 / 采访 / 读取 / 提炼 / 知识维护全由 agent 直接读写 vault markdown 完成（格式见 `vault-format.md`）——**零依赖、不装 hook、不跑后台进程**。**唯一用到 Python 的是可选的语音问答**；不用语音就完全不需要 Python。
 
 ## 1. 前提
 - 一个支持的 agent：**Claude Code / Codex / Hermes**。
 - （可选）**Obsidian**：vault 就是 markdown 文件夹，装了能可视化浏览（https://obsidian.md），没装也照常读写。
-- **Python 3.8+**（本地自动提炼默认开 + 语音问答都要用）：**安装 skill 时 agent 自动检测，没有就按需装、装完验证、不行重装**——你不用手动配。失败兜底：手动装 https://www.python.org/downloads/（Win 也可 Microsoft Store）。
+- （可选）**Python 3.8+**：**仅在用语音问答时需要**（本地 Azure STT 桥）；用语音再装即可（mac `brew install python3` / Win `winget install -e --id Python.Python.3.12` / 手动 https://www.python.org/downloads/）。**不用语音完全不需要 Python。**
 - 系统 macOS / Windows 都支持。
 
 ## 2. 建库（agent 直接做）
 在 agent 对话里说「安装第二大脑 / 初始化第二大脑」，agent 会：
 - 问你库放哪（默认 mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，或你指定）；
-- 按 `vault-format.md` 建 vault：`00-Home.md` + 一级目录（`00-Inbox 10-Inputs 20-Process 30-Outputs 40-Feedback 50-MOCs 60-Domains 70-Assets 90-Archive _System`）+ `50-MOCs/` 六张 MOC + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md`（二级中文工作模式子目录、行业页按需建）；
-- 然后做人格问答（采访）写画像；
-- **默认开启本地自动提炼**（初始化时选时机：会话结束 / 每条回复）：注册本地 hook（Claude/Codex 写各自 settings；**Hermes** 写 `~/.hermes/config.yaml`：end→`on_session_finalize`（整会话一次）/ stop→`on_session_end`（每回合），首次需 `hermes --accept-hooks` 同意）→ 自动把对话提炼进本地 vault（纯本地、不外传；需 Python，已自动备好）。切换/关：`install.py --mode end|stop` / `--remove`。
+- 按 `vault-format.md` 建 vault：`00-Home.md` + 一级目录（`00-Inbox 10-Inputs 20-Process 30-Outputs 40-Feedback 50-MOCs 60-Domains 70-Assets 90-Archive _System`）+ `50-MOCs/` 六张 MOC + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md`（二级中文工作模式子目录、行业页按需建），并把库路径写进 `~/.second-brain-obsidian/vault_path`；
+- 然后做人格问答（采访）写画像。
+- **之后日常对话靠 agent 每轮「在场提炼」自动写库**——发现关于你的新信息就按 `vault-format.md` 写进 vault（**提示词驱动，无需安装 / 注册任何东西、不装 hook、不跑后台**）。
 > 在 vault 目录里开 Claude Code 会**原生自动读 `CLAUDE.md`**、Codex / Hermes 读 `AGENTS.md`（两份同内容）——这就是默认的「读取注入」。
 
 ## 3. 语音问答密钥（仅语音·需 Python）
@@ -31,4 +31,4 @@ MINIMAX_API_HOST=https://api.minimax.chat
 > **音色**：页面右上角可选**男声 / 女声**（默认女声）；想固定自定义音色可在 `secrets.env` 设 `MINIMAX_VOICE_ID`（页面选择优先于它）。
 
 ## 4. 卸载
-删掉 vault 目录 + `~/.second-brain-obsidian/`（语音密钥）即可。
+删掉 vault 目录 + `~/.second-brain-obsidian/`（语音密钥）即可。**本版没注册任何 hook / 后台进程，无需额外卸载。**
