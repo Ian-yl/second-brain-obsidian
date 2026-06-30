@@ -45,19 +45,25 @@ def build(root):
       'TABLE mode, updated FROM "30-Outputs" OR "40-Feedback" SORT updated DESC LIMIT 10\n```\n')
 
     for m in MODES:
-        w(f"50-MOCs/MOC - {m}.md", f"---\ntype: moc\nmode: {MODE_ID[m]}\nupdated: 2026-06-30\n---\n\n"
-          f"# MOC · {m}\n\n## Inputs\n## Process\n## Outputs\n## Feedback\n")
+        sec = "\n## Inputs\n## Process\n## Outputs\n## Feedback\n"
+        if m == "项目交付":  # MOC 链到笔记（按标题）—— 测 alias 解析
+            sec = "\n## Inputs\n## Process\n- [[PRD 草稿]]\n## Outputs\n## Feedback\n- [[上线复盘]]\n"
+        w(f"50-MOCs/MOC - {m}.md", f"---\ntype: moc\nmode: {MODE_ID[m]}\nupdated: 2026-06-30\n---\n\n# MOC · {m}\n{sec}")
 
     w("60-Domains/product.md", "---\ntype: domain\ndomain: product\nupdated: 2026-06-30\n---\n\n"
       "# 产品经理\n\n## 常用工作模式\n- 主：项目交付\n- 辅：研究分析\n\n## 推荐入口\n- [[MOC - 项目交付]]\n")
 
-    notes = [("10-Inputs/研究分析", "2026-06-30 - 用户反馈", "Inputs", "研究分析"),
-             ("20-Process/项目交付", "2026-06-30 - PRD 草稿", "Process", "项目交付"),
-             ("40-Feedback/项目交付", "2026-06-30 - 上线复盘", "Feedback", "项目交付")]
-    for folder, title, layer, mode in notes:
-        w(f"{folder}/{title}.md", f"---\ntype: knowledge\nlayer: {layer}\nmode: {MODE_ID[mode]}\n"
-          f"domain: product\ncreated: 2026-06-30\nupdated: 2026-06-30\naliases: []\n"
-          f"tags: [领域/product, 类型/事实, 层/{layer}, 模式/{mode}]\nsources: [用户明说]\n---\n\n# {title}\n\n正文。\n")
+    # (folder, 文件名带日期前缀, 笔记标题, layer, mode, 相关链接标题) —— 测「[[标题]] 靠 alias 解析」
+    notes = [("10-Inputs/研究分析", "2026-06-30 - 用户反馈记录", "用户反馈记录", "Inputs", "研究分析", None),
+             ("20-Process/项目交付", "2026-06-30 - PRD 草稿", "PRD 草稿", "Process", "项目交付", None),
+             ("40-Feedback/项目交付", "2026-06-30 - 上线复盘", "上线复盘", "Feedback", "项目交付", "PRD 草稿")]
+    for folder, fname, title, layer, mode, rel in notes:
+        body = (f"---\ntype: knowledge\nlayer: {layer}\nmode: {MODE_ID[mode]}\ndomain: product\n"
+                f"created: 2026-06-30\nupdated: 2026-06-30\naliases: [{title}]\n"
+                f"tags: [领域/product, 类型/事实, 层/{layer}, 模式/{mode}]\nsources: [用户明说]\n---\n\n# {title}\n\n正文。\n")
+        if rel:
+            body += f"\n相关：[[{rel}]]\n"
+        w(f"{folder}/{fname}.md", body)
     w(".obsidian/app.json", "{}")
 
 
@@ -106,9 +112,17 @@ def validate(root):
         if not os.path.exists(os.path.join(root, f"50-MOCs/MOC - {m}.md")):
             issues.append(f"[MOC 文件不存在] {m}")
 
+    resolvable = set(filemap)  # 文件名 + aliases（[[标题]] 要靠 alias 解析，因文件名带日期前缀）
+    for p in allmd:
+        fm = frontmatter(p)
+        if fm and "aliases" in fm:
+            for a in fm["aliases"].strip("[] ").split(","):
+                a = a.strip()
+                if a:
+                    resolvable.add(a)
     for p in allmd:
         for tgt in re.findall(r"\[\[([^\]|]+)", open(p, encoding="utf-8").read()):
-            if tgt not in filemap:
+            if tgt not in resolvable:
                 issues.append(f"[断链] {os.path.relpath(p, root)} → [[{tgt}]]")
     return issues
 
