@@ -38,7 +38,7 @@ second-brain-obsidian/
 ├── 00-Inbox/  10-Inputs/ 20-Process/ 30-Outputs/ 40-Feedback/   # 四层一级目录；下按需建 6 个中文工作模式子目录
 └── 50-MOCs/（6 张模式 MOC）  60-Domains/（行业页·按需）  70-Assets/  90-Archive/  _System/
 
-~/.second-brain-obsidian/secrets.env(600)   # 仅语音密钥
+~/.second-brain-obsidian/   # vault_path · config.json(confirm_before_write 等) · secrets.env(600·仅语音密钥) · pending.md(待提炼便签)
 ```
 
 ## 3. 数据模型（vault；完整格式见 `references/vault-format.md`）

@@ -10,7 +10,7 @@
 
 - **人格画像 + 知识库 → 一份 Obsidian vault**：6 维度画像 + 四层（Inputs/Process/Outputs/Feedback）× 六大工作模式 的知识结构，agent 直接读写 markdown。
 - **跨 agent 通用**：Claude Code 原生读 `CLAUDE.md`、Codex / Hermes 读 `AGENTS.md`（同内容），共用同一份 vault、互不冲突。
-- **在场提炼**（提示词驱动）：**每轮对话后，agent 自己检查这轮有没有关于你的新信息，有就按规范写进 vault**——不装 hook、不跑后台、不依赖 Python。
+- **在场提炼**（提示词驱动）：agent 把关于你的新信息提炼进 vault——**每条回复带个 `🧠` 页脚告诉你"记了啥 / 待提炼几条"**（漏了一眼看得见），忙复杂任务时先攒、到段落收尾再写。
   - **任何话题都收**（含项目、闲聊里关于你的真实信息）；明文密钥 / token 自动脱敏。
   - **纯本地、零外传**：只写你电脑里的 markdown，不上传任何东西、不注册任何系统 hook。
 - **实时语音问答**（可选 · 唯一用 Python 处）：像打电话一样答采访题——Azure STT 听写 + MiniMax TTS 朗读（男 / 女声可选，默认女声）。
@@ -25,7 +25,7 @@
 
 ## 提炼怎么发生（提示词驱动 · 无 hook）
 
-第二大脑的「长大」靠 agent 在对话里**每轮自检**：回复后过一遍这轮，发现关于你的新画像 / 决策 / 知识 / 项目 → 按 `references/vault-format.md` 写进 vault（判层 + 模式、去重合并、同步 `CLAUDE.md`/`AGENTS.md` + 索引）。
+第二大脑的「长大」靠 agent 在对话里**自检 + 页脚留痕**：每条回复结尾带 `🧠 第二大脑：记了X / 待提炼N条 / 本轮无新增`，让你**每轮看得见**有没有在记；发现关于你的新画像 / 决策 / 知识 / 项目 → 按 `references/vault-format.md` 写进 vault（判层 + 模式、去重合并、同步 `CLAUDE.md`/`AGENTS.md` + 索引）。忙时先攒进 `pending.md`、到断点再写。
 
 - **不装任何系统 hook、不跑后台进程**——纯靠 `SKILL.md` 里的提示词，所以三家 agent（Claude / Codex / Hermes）行为一致、零依赖。
 - 深度回顾：Claude Code 用 `/insights` 生成会话报告 → agent 提炼入库；Codex / Hermes 把要提炼的内容贴给 agent 即可。

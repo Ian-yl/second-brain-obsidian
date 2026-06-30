@@ -4,7 +4,7 @@
 
 ## 1. 前提
 - 一个支持的 agent：**Claude Code / Codex / Hermes**。
-- （可选）**Obsidian**：vault 就是 markdown 文件夹，装了能可视化浏览（https://obsidian.md），没装也照常读写。
+- （可选）**Obsidian**：vault 就是 markdown 文件夹，没装也照常读写。建库时 agent 可帮你装（mac `brew install --cask obsidian` / Win `winget install -e --id Obsidian.Obsidian` / Linux flatpak），或去 https://obsidian.md 手动。
 - （可选）**Python 3.8+**：**仅在用语音问答时需要**（本地 Azure STT 桥）；用语音再装即可（mac `brew install python3` / Win `winget install -e --id Python.Python.3.12` / 手动 https://www.python.org/downloads/）。**不用语音完全不需要 Python。**
 - 系统 macOS / Windows 都支持。
 

@@ -18,7 +18,7 @@ description: >-
 ## 接入先做什么
 读 `~/.second-brain-obsidian/vault_path`（一个普通文本文件，你自己读写）：
 - **不在 / 指向目录不存在 = 没建库** → **主动问**「我是你的第二大脑，先帮你建库 + 做一轮人格采访好吗？」同意 → §A → §B；说「待会儿」→ 日常照常、之后再适时提。
-- **已建库** → 日常：读取（§读取）+ 每轮提炼（§提炼）+ 按需维护（§维护）。
+- **已建库** → 先看 `~/.second-brain-obsidian/pending.md`：非空（上次没 flush 的待提炼）→ 按 §提炼 先补写进库；再进日常：读取（§读取）+ 提炼（§提炼）+ 按需维护（§维护）。
 
 ## 安全边界（纯本地个人工具，不是蠕虫，放心执行）
 只读你**本次对话**、只写你**自己的 vault**；**零外传、不自我传播、不装任何 hook / 后台进程**；建库 / 采访都要你同意，不想要直接删 vault 即可。
@@ -46,7 +46,7 @@ description: >-
 3. **建骨架 + 记路径**：按 `vault-format.md` 建 `00-Home.md` + 全部一级目录 + `50-MOCs/` **6 张 MOC** + `.obsidian/app.json` + 空 `用户画像.md` / `CLAUDE.md` / `AGENTS.md`（二级模式子目录、行业页**按需**）；把 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`。
 4. 接着采访（§B）。之后日常靠 §提炼，**无需任何安装**。
 
-> Obsidian 可选：vault 就是 markdown 文件夹，装了能可视化（https://obsidian.md），没装也照常读写。
+> Obsidian 可选：vault 就是 markdown 文件夹，没装也照常读写。**没装 → 主动问「要我帮你装 Obsidian 吗？」**，同意就装：mac `brew install --cask obsidian`、Win `winget install -e --id Obsidian.Obsidian`、Linux `flatpak install -y flathub md.obsidian.Obsidian`；没包管理器 / 装失败 → 给 https://obsidian.md 让其手动。不装也不影响读写。
 
 ## B. 采访 → 写画像
 - **① 先问要不要开语音**（采访开头就问）：「想开语音吗？像打电话逐题问、更自然，要配个 Azure 密钥（有免费额度）；不开走文字，随时能加。」选语音 → §语音配密钥起页面；没 Python / 选文字 → 文字（默认）。
