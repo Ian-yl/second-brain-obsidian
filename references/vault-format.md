@@ -156,7 +156,7 @@ updated: <YYYY-MM-DD>
 - [[MOC - 学习成长]]
 
 ## 常用领域
-- <随 60-Domains/ 增加而列 [[Domain - xxx]]；暂无就写「（暂无）」>
+- <随 60-Domains/ 增加而列；链接 = domain 文件名（`60-Domains/<domain>.md`），如 [[product]]；暂无就写「（暂无）」>
 
 ## 最近输出 / 复盘
 ```dataview
