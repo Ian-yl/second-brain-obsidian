@@ -51,7 +51,7 @@ frontmatter（`type/updated/framework_version/tags`）+ 固定 8 段：概览 + 
 
 ### 3.2 知识 `<层一级目录>/<中文工作模式>/<YYYY-MM-DD> - <标题>.md`
 四层（Inputs/Process/Outputs/Feedback）一级目录 × 六大中文工作模式按需子目录。frontmatter（`type/layer/mode/domain/created/updated/aliases/tags/sources`）+ `# 标题` + 正文。
-- **自动判位**：先判知识层 → 再按「对象+动作+产出」判工作模式 → 落对应目录（不存在自动建）；判不出进 `00-Inbox/`。同标题合并、不堆叠重复段落。
+- **自动判位**：先判知识层 → 再按「对象+动作+产出」判工作模式 → 落对应目录（不存在自动建）；判不出进 `00-Inbox/`。同标题合并、不堆叠重复段落。（完整目录规则 + 落位示范 + 何时/怎么做 5W2H 见 `docs/Obsidian-六大工作模式模板指南.md`。）
 
 ### 3.3 索引 `00-Home.md` + `50-MOCs/MOC - <模式>.md` + `CLAUDE.md` / `AGENTS.md`
 `00-Home.md`（总入口）：从这开始 / 六大模式 MOC 入口 / 常用领域 / 最近输出·复盘（dataview）。`50-MOCs/` 六张模式 MOC（建库就建）。`CLAUDE.md` / `AGENTS.md`（vault 根·两份同内容）= 画像摘要，Claude 读前者、Codex/Hermes 读后者，默认读取注入。
@@ -62,7 +62,7 @@ frontmatter（`type/updated/framework_version/tags`）+ 固定 8 段：概览 + 
 接入本 skill 检测无库即主动发起。**显式问且等答**：① 库放哪 ② 主要管什么（**带例子**→推荐主+辅模式+domain）。按 `vault-format.md` 建骨架：`00-Home.md` + 全部一级目录 + `50-MOCs/` 六张 MOC + `.obsidian/app.json` + 空 `用户画像/CLAUDE/AGENTS`；二级模式目录、行业页按需建。
 
 ### 4.2 采访（人格问答）
-agent 自己出题，覆盖 6 维度、共约 15 题（框架见 `framework.md`）。用户文字一次性填，或实时语音作答（§5）。agent 把答案提炼成画像，写进 `用户画像.md` + 同步 `CLAUDE.md`/`AGENTS.md`。
+agent 自己出题，覆盖 6 维度、共约 15 题（框架见 `framework.md`）。**采访开头先问要不要开语音**；用户文字一次性填，或实时语音作答（§5）。agent 把答案提炼成画像，写进 `用户画像.md` + 同步 `CLAUDE.md`/`AGENTS.md`。
 
 ### 4.3 更新（自动提炼默认开 + 在场提炼）
 对话中得知用户**新**画像/知识（库里没有、有长期价值）时，agent 主动提炼，按 `vault-format.md` 写进 vault：画像归维度（去重 + 变更日志），知识按**自动判位**落 `<层>/<中文模式>/`（同标题合并、判不出进 00-Inbox），同步 `CLAUDE.md`/`AGENTS.md` + 更新 `00-Home.md`/对应 MOC。
@@ -87,6 +87,7 @@ vault 内原生自动读 `CLAUDE.md`（Claude Code）/ `AGENTS.md`（Codex、Her
 - `voice/bridge.py` 起本地服务（`/questions /token /tts /answer /done`），密钥只在服务端、不进浏览器。
 - `web/index.html`：像打电话——自动朗读问题 → 自动聆听 → 停顿即进下一题；同步显示文字 + 完整对话历史。
 - 收尾：答案写出到 out 文件 → agent 读它提炼写画像。
+- **没配密钥时**：agent 明确引导用户配置（**听**=Azure 必需、**读**=MiniMax 可选·不配回退浏览器朗读），或先走文字。
 - 没 Python 时语音不可用，其余功能照常。
 
 ## 6. 隐私与安全
