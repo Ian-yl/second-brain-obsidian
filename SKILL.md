@@ -157,7 +157,7 @@ description: >-
 > **语音是唯一用到 Python 的功能**（本地 Azure STT 桥）。没探测到 Python → 告诉用户「语音要 Python 环境，咱们先走文字问答」，其余功能照常。
 
 用户选语音且有 Python 时：
-1. `python3 SK/scripts/keys.py status` 确认 Azure 已配（没配就引导配密钥，或回退文字）。
+1. `python3 SK/scripts/keys.py status` 看 `voice_ready`：已配 → 进第 2 步；**没配 → 别只甩「需要密钥」，按 §语音密钥 的话术明确引导用户（要什么 / 去哪拿 / 怎么发我），拿到就 `keys.py set` 存好；用户不想配 → 回退文字问答**。
 2. 把这轮问题存 `/tmp/q.json`（`["问题1",...]`）。
 3. `python3 SK/scripts/voice/bridge.py --questions /tmp/q.json --out /tmp/answers.json --background`
    —— **必须加 `--background`**（不加是前台 serve、会一直卡住你）。它**秒返回 URL**、自动开浏览器；
@@ -172,6 +172,13 @@ description: >-
 
 - `python3 SK/scripts/keys.py status` 看现状；`keys.py set --azure-key <KEY> [--azure-region koreacentral] [--minimax-key <KEY>]`。
 - 必需 Azure STT；可选 MiniMax（更自然音色，不填用浏览器 TTS）。密钥仅存 `~/.second-brain-obsidian/secrets.env`（chmod 600）。
+- **没配时这样引导用户**（讲清要什么 / 去哪拿 / 怎么给，别只说「需要密钥」；**「听」和「读」分开说**）：
+  > 语音作答要两块密钥，作用不同：
+  > ① **听你说话（必需）= 微软 Azure 语音**：去 `portal.azure.com` 建个「Speech / 语音服务」资源 → 拿 **Key** + **Region**（如 `koreacentral`）。有免费额度，够用。
+  > ② **朗读问题（可选）= MiniMax 音色**：配了朗读更自然、可男 / 女声；**不配也能用**——回退浏览器自带朗读（免费、能用，只是没那么自然）。想要就再给我一个 **MiniMax** key。
+  > 把密钥发我，我帮你存进本机 `secrets.env`（只存本地、不外传 / 不进 git）。或者**先走文字问答**，语音随时能加。
+
+  拿到后跑 `keys.py set --azure-key <KEY> --azure-region <REGION> [--minimax-key <KEY>]` 存好，再起语音页。
 
 ---
 
