@@ -11,7 +11,7 @@
 ## 2. 建库（agent 直接做）
 在 agent 对话里说「安装第二大脑 / 初始化第二大脑」，agent 会：
 - 问你库放哪（默认 mac=iCloud Obsidian 目录、Win=`~/Documents/second-brain`，或你指定）；
-- 按 `vault-format.md` 建 vault：`Knowledge/{Inputs,Process,Outputs,Feedback}` + `Inbox` + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md` / `_索引.md`；
+- 按 `vault-format.md` 建 vault：`00-Home.md` + 一级目录（`00-Inbox 10-Inputs 20-Process 30-Outputs 40-Feedback 50-MOCs 60-Domains 70-Assets 90-Archive _System`）+ `50-MOCs/` 六张 MOC + `.obsidian/` + 空骨架 `用户画像.md` / `CLAUDE.md` + `AGENTS.md`（二级中文工作模式子目录、行业页按需建）；
 - 然后做人格问答（采访）写画像；
 - **默认开启本地自动提炼**（初始化时选时机：会话结束 / 每条回复）：注册本地 hook（Claude/Codex 写各自 settings；**Hermes** 写 `~/.hermes/config.yaml`：end→`on_session_finalize`（整会话一次）/ stop→`on_session_end`（每回合），首次需 `hermes --accept-hooks` 同意）→ 自动把对话提炼进本地 vault（纯本地、不外传；需 Python，已自动备好）。切换/关：`install.py --mode end|stop` / `--remove`。
 > 在 vault 目录里开 Claude Code 会**原生自动读 `CLAUDE.md`**、Codex / Hermes 读 `AGENTS.md`（两份同内容）——这就是默认的「读取注入」。

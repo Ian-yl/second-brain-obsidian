@@ -8,7 +8,7 @@
 
 ## 它能做什么
 
-- **人格画像 + 知识库 → 一份 Obsidian vault**：6 维度画像 + Inputs / Process / Outputs / Feedback 四层知识，agent 直接读写 markdown。
+- **人格画像 + 知识库 → 一份 Obsidian vault**：6 维度画像 + 四层（Inputs/Process/Outputs/Feedback）× 六大工作模式 的知识结构，agent 直接读写 markdown。
 - **跨 agent 通用**：Claude Code 原生读 `CLAUDE.md`、Codex / Hermes 读 `AGENTS.md`（同内容），共用同一份 vault、互不冲突。
 - **本地自动提炼**（默认开）：每次对话后，后台用**当前会话的 agent** 把关于你的新信息提炼进 vault。
   - 两种时机，**初始化时选、随时可切**（跟 agent 说「改成实时更新」/「结束对话再更新」即可）：
@@ -46,8 +46,9 @@ scripts/
   install.py / hook_entry.py   # 注册本地 hook + 后台提炼
   voice/                       # 打电话式语音采集（bridge.py + web/index.html）
 <vault>/                       # 你的第二大脑
-  用户画像.md  CLAUDE.md  AGENTS.md  _索引.md
-  Knowledge/{Inputs,Process,Outputs,Feedback}/   Inbox/
+  00-Home.md  用户画像.md  CLAUDE.md  AGENTS.md
+  00-Inbox/  10-Inputs/ 20-Process/ 30-Outputs/ 40-Feedback/   # 四层下按需建中文工作模式子目录
+  50-MOCs/  60-Domains/  70-Assets/  90-Archive/  _System/
 ```
 
 ## 隐私
