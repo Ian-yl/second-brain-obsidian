@@ -84,7 +84,16 @@ description: >-
 
 1. **认 Obsidian（自动）**：检测本机 Obsidian 装没装（mac `/Applications/Obsidian.app`、Win `%LOCALAPPDATA%\Programs\obsidian`）。没装 → 提示可去 https://obsidian.md（vault 是纯 markdown，不装也能读写）。
 2. **【问】库放哪**：**单独问一句**「第二大脑库建在哪？默认 `<mac=iCloud Obsidian 目录 / Win=~/Documents/second-brain>`，回我『默认』就行，或给我一个路径」——**等用户答**再建。已有库 → 问「复用 / 新建」。
-3. **【问】你主要想用它管什么**：**单独问一句**「你主要想用第二大脑管什么？项目 / 研究 / 客户 / 内容 / 流程 / 学习 / 复盘，或直接说你的职业·场景」→ 据答**推荐主 + 辅工作模式 + domain**（映射见 `vault-format.md` 与 `docs/Obsidian-六大工作模式模板指南.md`），用一句话回给用户确认（如「那默认走【项目交付 + 研究分析】、domain=product，行吗？」）。这步定提炼默认往哪个模式落，但**不预建空目录**。
+3. **【问】你主要想用它管什么**——**必须带例子问，别只甩「项目/研究/客户…」这种抽象词，用户看不懂**。这样问：
+   > 你主要想用第二大脑管什么？给你几个方向（说哪个都行，也可以直接说你的职业 / 在做的事，我来帮你归）：
+   > - **项目 / 需求 / 上线** —— 做产品、带项目、交付
+   > - **研究 / 资料 / 分析** —— 查资料、写分析报告、做调研
+   > - **客户 / 案件 / 病人 / 候选人** —— 销售、律师、医生、HR、咨询
+   > - **写文章 / 做内容** —— 自媒体、写作、课程、视频
+   > - **流程 / SOP / 事故复盘** —— 运维、运营、质量
+   > - **学习 / 笔记 / 复盘** —— 学生、自我成长
+
+   据答**推荐主 + 辅工作模式 + domain**（映射见 `vault-format.md` 与 `docs/Obsidian-六大工作模式模板指南.md`），用一句话回确认（如「那默认走【项目交付 + 研究分析】、domain=product，行吗？」）。这步定提炼默认往哪个模式落，但**不预建空目录**。
 4. **建骨架 + 记录路径**：按 `vault-format.md` 建——`00-Home.md` + 全部一级目录（`00-Inbox 10-Inputs 20-Process 30-Outputs 40-Feedback 50-MOCs 60-Domains 70-Assets 90-Archive _System/{Templates,Dashboards,Attachments}`）+ `50-MOCs/` 里 **6 张 MOC** + `.obsidian/app.json`（`{}`）+ 空骨架 `用户画像.md` / `CLAUDE.md`+`AGENTS.md`。**二级工作模式子目录、行业页都不预建（按需）**。**把 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`**（之后读取 / 提炼都靠它，不再问）。
 5. 接着做人格问答（§B）写画像。
 6. **【问】开自动提炼·选时机**：**单独问、等用户选**「自动提炼什么时候做？① **会话结束**（省，一次/会话） ② **每条回复后**（实时、更稳，次数多）」→ 按选择跑 `python3 SK/scripts/install.py --mode end`（①）或 `--mode stop`（②）。**别默认略过这个问题**。它读第 4 步的路径、注册本机 hook → 此后自动把对话提炼进本地 Obsidian（§0 已备好 Python）。

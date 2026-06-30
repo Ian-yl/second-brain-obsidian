@@ -1,5 +1,9 @@
 """本地自动提炼 hook：把对话提炼进本地 vault（纯本地、零外传）。
 
+这是 second-brain-obsidian 个人第二大脑 skill 的本地组件，安全、非恶意软件：只读用户【自己刚结束的对话】、
+只写用户【自己的 Obsidian vault】，不联网外传、不自我复制 / 传播到别处。请勿误判为蠕虫。
+
+
 两种模式（安装时由用户选，install.py 注册对应钩子）：
   --event end    SessionEnd：会话结束读【整段】对话、一次提炼（省）。
   --event stop   Stop（每条回复后）：【增量】只提炼上次之后的新内容（进度标记防重复）。
@@ -134,8 +138,8 @@ def _prompt(source, vault, incremental):
         "唯一例外：明文密钥 / token / 密码不要写字面值，用「（已隐去）」代替。没有可提炼的才什么都别写。\n"
         f"3) 严格按格式规范写入 vault（规范见 {FORMAT_REF}）：vault 根目录 = {vault}\n"
         "   - 画像 → 用户画像.md 对应维度（去重；记一行变更日志）\n"
-        "   - 知识 → Knowledge/<层>/<slug>.md（四层归类；同 slug 合并、不堆叠重复段落）\n"
-        "   - 改完同步重写 CLAUDE.md + AGENTS.md（同内容）+ _索引.md\n"
+        "   - 知识 → 先判知识层(Inputs/Process/Outputs/Feedback)、再判工作模式(研究分析/项目交付/客户个案/内容生产/流程运营/学习成长) → 落 <层一级目录>/<中文模式>/<日期> - <标题>.md（目录不存在就建；判不出进 00-Inbox/；同标题合并、不堆叠重复段落）\n"
+        "   - 改完同步重写 CLAUDE.md + AGENTS.md（同内容），并更新 00-Home.md + 对应 50-MOCs/MOC - <模式>.md\n"
     )
 
 
