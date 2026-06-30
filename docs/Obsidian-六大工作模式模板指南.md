@@ -1,11 +1,11 @@
 ---
-title: Obsidian Vault 目录规则（LLM 版）
+title: Obsidian 六大工作模式 · 目录规则（LLM 版）
 type: llm-instruction
 tags: [obsidian, vault-structure, llm-rules]
 version: 1.0
 ---
 
-# Obsidian Vault 目录规则（LLM 版）
+# Obsidian 六大工作模式 · 目录规则（LLM 版）
 
 ## 0. 任务边界
 
