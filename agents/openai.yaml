@@ -1,4 +1,4 @@
 interface:
   display_name: "第二大脑 Second Brain"
-  short_description: "构建并维护你的第二大脑：从历史对话提取人格画像+知识库、做人格问答（约 15 题，文字或实时语音）、复刻你的风格与知识，让 AI 像你一样；也读取/更新 Obsidian。"
-  default_prompt: "用 $second-brain-obsidian 初始化我的第二大脑：安装、（可选）从历史对话生成画像和知识、然后给我做人格问答。"
+  short_description: "构建并维护你的第二大脑：人格问答（约 15 题，文字或实时语音）建画像 + 对话中持续把新知识/决策提炼进 Obsidian，复刻你的风格与知识，让 AI 像你一样；纯本地、不读历史 transcript。"
+  default_prompt: "用 $second-brain-obsidian 初始化我的第二大脑：建库 → 给我做人格问答 → 之后日常对话把新东西自动提炼进库。"
