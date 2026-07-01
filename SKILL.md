@@ -64,8 +64,8 @@ description: >-
 > 完整方案 + 反跳过铁律见 `docs/specs/2026-07-01-knowledge-bootstrap-plan.md`。**所有 offer 是必做步骤、别写成软提示；用户的选择才可选。每次写库留 `🧠` 页脚。**
 
 - **① 方法论种子包（最省 · 先推）**：skill 自带 `SK/references/methodologies/`（`feynman` 费曼 / `atomic-slicing` 切片 / `zettelkasten` 卡片盒 / `spaced-repetition` 间隔重复 / `para` / `first-principles` / `retrospective` 复盘）。
-  1. **【必问·等答】** 给清单，问「全部 / 推荐 5 个（费曼·切片·间隔重复·PARA·复盘）/ 自选？」。
-  2. 逐篇：读 `methodologies/<id>.md` → 按 `vault-format.md` 写进 `20-Process/学习成长/<日期> - <方法名>.md`，补 frontmatter：`type:knowledge, layer:Process, mode:learning-growth, tags:[类型/方法论, 层/Process, 模式/学习成长], aliases:[<方法名>]`（**aliases 必含标题，否则 MOC 断链**）。
+  1. **【必问·等答】** 给清单，问「**全部（推荐·7 篇互链最完整）** / 推荐 5 个（费曼·切片·间隔重复·PARA·复盘）/ 自选？」。
+  2. 逐篇：读 `methodologies/<id>.md` → 按 `vault-format.md` 写进 `20-Process/学习成长/<日期> - <方法名>.md`，补 frontmatter：`type:knowledge, layer:Process, mode:learning-growth, tags:[类型/方法论, 层/Process, 模式/学习成长], aliases:[<方法名>]`（**aliases 必含标题**）。**`相关:` 行只保留指向【本次也导入了】的方法论——指向没导入的删掉**（种子之间互相引用，导子集时必删多余链接、否则断链）。
   3. 更新 `50-MOCs/MOC - 学习成长.md` 的 `## Process` 段（`- [[<方法名>]]`）+ `00-Home.md`。
   4. 页脚：`🧠 第二大脑：导入 N 篇方法论 → 20-Process/学习成长/`。
 - **② 批量导入**：用户给 URL / 书单 → WebFetch 抓正文逐条提炼；指文件夹 → 读 + 按 vault-format 重构入库（大主题用**切片法**拆原子笔记）。

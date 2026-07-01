@@ -66,7 +66,7 @@ date: 2026-07-01
 
 ### 4.2 执行步骤（【必做】按序，别跳）
 1. **【必问·等答】列清单 + 问范围**：把上面清单给用户看，问「要**全部**、还是**推荐 5 个（费曼 / 切片 / 间隔重复 / PARA / 复盘）**、还是**你自选几个**？」——等答。
-2. **逐篇写入**：对每个选中的 id → 读 `references/methodologies/<id>.md` → 按 `vault-format.md` 写进 `20-Process/学习成长/<YYYY-MM-DD> - <方法名>.md`。frontmatter 必含：`type: knowledge`、`layer: Process`、`mode: learning-growth`、`tags: [类型/方法论, 层/Process, 模式/学习成长]`、`aliases: [<方法名>]`（否则 MOC 里 `[[方法名]]` 链不过去——见 vault-format）。
+2. **逐篇写入**：对每个选中的 id → 读 `references/methodologies/<id>.md` → 按 `vault-format.md` 写进 `20-Process/学习成长/<YYYY-MM-DD> - <方法名>.md`。frontmatter 必含：`type: knowledge`、`layer: Process`、`mode: learning-growth`、`tags: [类型/方法论, 层/Process, 模式/学习成长]`、`aliases: [<方法名>]`（否则 MOC 里 `[[方法名]]` 链不过去——见 vault-format）。**种子笔记的 `相关:` 行会互相引用——只保留指向【本次也导入了】的方法论，指向没导入的那些链接删掉（否则断链）；建议一次导全 7 篇、互链最完整。**
 3. **建 / 更 MOC**：更新 `50-MOCs/MOC - 学习成长.md` 的 `## Process` 段，逐条加 `- [[<方法名>]]`。
 4. **更新 `00-Home.md`**（同 vault-format §4）。
 5. **【必做】页脚留痕**：`🧠 第二大脑：导入 N 篇方法论 → 20-Process/学习成长/`。
@@ -164,6 +164,7 @@ date: 2026-07-01
 - [ ] 每个模式的动作都是**编号硬步骤**、`【必问·等答】` 处等用户答。
 - [ ] 每次写库**必留 `🧠` 页脚**。
 - [ ] 方法论笔记 `aliases` **必含标题**（否则 MOC / 00-Home 的 `[[]]` 断链——vault-format 已规定）。
+- [ ] 导入**子集**时，种子笔记 `相关:` 里**指向没一起导入的方法论 → 删掉那条链接**（种子互相引用，否则断链；本地导入测试已验证全 7 篇无断链）。
 - [ ] 全程 **agent 直接读写 markdown**，**零新依赖**（不新增 Python / hook / 后台）。
 - [ ] 路径用跨平台的（vault 内相对路径 + `~/.second-brain-obsidian/`），**别用 `/tmp`**。
 
