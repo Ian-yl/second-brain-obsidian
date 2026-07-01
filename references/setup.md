@@ -17,7 +17,7 @@
 > 在 vault 目录里开 Claude Code 会**原生自动读 `CLAUDE.md`**、Codex / Hermes 读 `AGENTS.md`（两份同内容）——这就是默认的「读取注入」。
 
 ## 3. 语音问答密钥（仅语音·需 Python）
-实时语音作答需微软 Azure STT。配密钥：`python3 <skill>/scripts/keys.py set --azure-key <KEY> [--azure-region koreacentral] [--minimax-key <KEY>]`，或手写进 `~/.second-brain-obsidian/secrets.env`（chmod 600）：
+实时语音作答需 **Azure STT（听·必需）+ 推荐 MiniMax（读·朗读更自然，不配回退浏览器朗读）**——两个都建议配。配密钥：`python3 <skill>/scripts/keys.py set --azure-key <KEY> [--azure-region koreacentral] [--minimax-key <KEY>]`，或手写进 `~/.second-brain-obsidian/secrets.env`（chmod 600）：
 ```
 AZURE_SPEECH_KEY=你的-azure-subscription-key
 AZURE_SPEECH_REGION=koreacentral
