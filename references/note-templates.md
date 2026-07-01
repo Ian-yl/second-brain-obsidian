@@ -4,8 +4,8 @@
 
 > 这些是**正文模板**（`# 标题` 及以下）；**frontmatter 一律照 `vault-format.md` 补**（`type/layer/mode/domain/created/updated/aliases/tags/sources`；`aliases` 必含标题）。落位（层 + 模式）按 vault-format 的自动判位。
 
-## 方法论
-见 `references/methodologies/`（5 段：是什么 / 怎么用 / 什么时候用 / 例子 / 相关）。→ 一般落 `20-Process/学习成长/`。
+## 方法论（agent 手法 · 非默认用户内容）
+方法论是 **agent 的建知识手法**（见 `references/methodologies/`），**默认不作为用户笔记**。仅当用户**明确要一份参考** → 才落 `70-Assets/参考/`（5 段：是什么 / 怎么用 / 什么时候用 / 例子 / 相关），标明"参考资料·非我的知识"。
 
 ## 概念（→ 多落 10-Inputs 或 20-Process）
 ```

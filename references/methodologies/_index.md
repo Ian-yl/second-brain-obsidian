@@ -1,8 +1,11 @@
-# 方法论种子包
+# 方法论 · agent 的建知识工具箱
 
-「知识快速导入」功能的**种子内容**（完整方案见 `docs/specs/2026-07-01-knowledge-bootstrap-plan.md`）。
+这些是 **agent 建【用户】知识时用的手法**——**不是往用户库里塞的内容**。agent 读它、把手法用在用户自己的知识上：
 
-建库后 agent 可把它们按 `references/vault-format.md` 导入用户 vault 的 `20-Process/学习成长/`——让库立刻有可用的方法论干货，也**顺带教用户怎么用第二大脑**（费曼→采访/提炼、切片→原子笔记）。
+- **feynman 费曼** —— **提取**手法：让用户「用大白话讲出来」→ 逼出真懂的 + 暴露盲区。用于采访 / 知识抽取。
+- **atomic-slicing 切片 / 原子笔记** —— **组织**手法：把用户的大知识切成「一念一片」、互链。决定笔记粒度。
+- **zettelkasten 卡片盒**（链接增殖）· **spaced-repetition 间隔重复**（复习安排）· **para PARA** / **first-principles 第一性原理** / **retrospective 复盘法**（组织 / 思考框架）。
 
-- 每篇 = 一个方法，**body-only**（`# 标题` + 5 段 + `相关`）；**导入时 agent 补 vault-format 的 frontmatter**（`type/layer=Process/mode=learning-growth`、`tags:[类型/方法论,层/Process,模式/学习成长]`、`aliases:[标题]`）。
-- 清单：`feynman` 费曼学习法 · `atomic-slicing` 切片/原子笔记 · `zettelkasten` 卡片盒 · `spaced-repetition` 间隔重复 · `para` PARA · `first-principles` 第一性原理 · `retrospective` 复盘法。
+**用法**：agent 在 §知识导入 / 采访 / 提炼里【应用】这些手法建用户的知识。**默认不把它们当内容导入用户库**——用户库只装用户自己的东西（决策 / 经验 / 项目 / 在学的）。
+
+> 仅当用户**明确说想要**一份学习法速查当参考 → 才读 `<id>.md` 导入 `70-Assets/参考/`、标明「参考资料·非我的知识」。每篇 body-only（`# 标题` + 5 段 + `相关`）。
