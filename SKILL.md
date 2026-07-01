@@ -96,7 +96,7 @@ description: >-
 > 没探测到 Python → 「语音要 Python 环境，先走文字问答」，其余照常。
 
 用户选语音且有 Python 时：
-1. `python3 SK/scripts/keys.py status` 看 `voice_ready`：已配 → 第 2 步；**没配 → 按 §语音密钥 话术引导配，拿到 `keys.py set` 存好；不想配 → 回退文字。**
+1. `python3 SK/scripts/keys.py status` 看 `voice_ready`：已配 → 第 2 步；**没配 → 按 §语音密钥 话术引导配——`Azure`(听·必需) + `MiniMax`(读·推荐)【两个 key 都要提示用户】、别只提 Azure；拿到就 `keys.py set` 存好；不想配 → 回退文字。**
 2. 问题存 `~/.second-brain-obsidian/voice-q.json`（`["问题1",...]`；用这个跨平台路径、**别用 `/tmp`**——Windows 没有）。
 3. `python3 SK/scripts/voice/bridge.py --questions ~/.second-brain-obsidian/voice-q.json --out ~/.second-brain-obsidian/voice-answers.json --background`（路径先展开 `~`；Win 把 `python3` 换 `python`） —— **必须加 `--background`**（不加会卡住你）。它秒返回 URL、自动开浏览器；把 URL 以可点击 markdown 链接发用户（`[🎙️ 打开语音问答](http://127.0.0.1:8765/)`），让其点页面「开始通话」。
 4. 浏览器**像打电话**：自动朗读（右上角可选**男 / 女声**，默认女声）→ 自动聆听 → 停顿即下一题；同步文字 + 历史。
@@ -105,7 +105,7 @@ description: >-
 ## 语音密钥（随时设置 · 需 Python）
 - `python3 SK/scripts/keys.py status` 看现状；`keys.py set --azure-key <KEY> [--azure-region koreacentral] [--minimax-key <KEY>]`。密钥仅存 `~/.second-brain-obsidian/secrets.env`（chmod 600）。
 - **没配时这样引导**（讲清要什么 / 去哪拿 / 怎么给；「听」「读」分开说）：
-  > 语音作答要两块密钥：① **听你说话（必需）= 微软 Azure**：去 `portal.azure.com` 建「Speech / 语音服务」资源 → 拿 **Key + Region**（如 `koreacentral`），有免费额度。② **朗读问题（可选）= MiniMax**：配了更自然、可男 / 女声；**不配也能用**（回退浏览器朗读）。把密钥发我，存进本机 `secrets.env`（不外传 / 不进 git）。或**先走文字**，语音随时能加。
+  > 语音作答建议配**两个 key（两个都发我，我一起存）**：① **听你说话（必需）= 微软 Azure**：去 `portal.azure.com` 建「Speech / 语音服务」资源 → 拿 **Key + Region**（如 `koreacentral`），有免费额度。② **朗读问题（推荐）= MiniMax**：朗读自然很多、可男 / 女声（去 `platform.minimax.chat` 拿 API key）；不配就回退浏览器朗读（能用、没那么自然）。把这两个密钥发我，存进本机 `secrets.env`（不外传 / 不进 git）。或**先走文字**，语音随时能加。
 
 ---
 
