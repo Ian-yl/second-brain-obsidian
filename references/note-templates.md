@@ -2,7 +2,9 @@
 
 导入 / 新建知识笔记时**按类型套模板**——结构统一、可检索、好复用。
 
-> 这些是**正文模板**（`# 标题` 及以下）；**frontmatter 一律照 `vault-format.md` 补**（`type/layer/mode/domain/created/updated/aliases/tags/sources`；`aliases` 必含标题）。落位（层 + 模式）按 vault-format 的自动判位。
+> 这些是**正文模板**（`# 标题` 及以下）；**frontmatter 一律照 `vault-format.md` 补**（`type/layer/mode/domain/created/updated/aliases/tags/sources`）。`aliases` 只做搜索 / 显示辅助（非链接依据）。落位（层 + 模式）按 vault-format 的自动判位。
+>
+> **🔗 链接**：`相关：` 及任何指向知识笔记的链接**一律用「相对路径别名」格式** `[[<相对路径不带.md>|<标题>]]`，**不用裸标题**（裸 `[[标题]]` 会断链，Obsidian 还会在根目录生成一个空笔记）。详见 `vault-format.md`。
 
 ## 方法论（agent 手法 · 非默认用户内容）
 方法论是 **agent 的建知识手法**（见 `references/methodologies/`），**默认不作为用户笔记**。仅当用户**明确要一份参考** → 才落 `70-Assets/参考/`（5 段：是什么 / 怎么用 / 什么时候用 / 例子 / 相关），标明"参考资料·非我的知识"。
@@ -20,7 +22,7 @@
 ## 例子 / 反例
 <具体>
 
-相关：[[…]]
+相关：[[<相对路径不带.md>|<标题>]]
 ```
 
 ## 决策（→ 落 30-Outputs）
@@ -77,7 +79,7 @@
 ## 行动
 - <读完我要做的一件事>
 
-相关：[[…]]
+相关：[[<相对路径不带.md>|<标题>]]
 ```
 
 ## 项目（→ 落 20-Process 或 30-Outputs）

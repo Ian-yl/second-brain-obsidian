@@ -89,7 +89,7 @@ description: >-
 
 每条**实质回复**都留意有没有「关于用户、值得长期留」的新信息——决策 / 观点 / 偏好 / 方法 / 在做的项目 / 知识（**任何话题都算**，含闲聊、搭系统的元对话，别按类型预排除）。**按价值**：高价值 → 入库；拿不准 → 宁可不写、或顺口问一句（**别攒批量问**）；没价值（寒暄 / 噪声）→ 跳过；密钥 / token 一律**脱敏**不写。
 
-**写入规则全在 `vault-format.md`**（去重 / 按先例落位 / frontmatter / 同步画像·`CLAUDE`·`AGENTS`·`00-Home`·MOC），照它做。知识笔记按**切片法**·原子粒度（一念一片、`[[]]` 互链；见 `references/methodologies/atomic-slicing.md`）。**只写用户明说的事实**，推断的标 `sources: 推断·待确认` 或先问。`~/.second-brain-obsidian/config.json` 里 `confirm_before_write: true` 时写前先确认。
+**写入规则全在 `vault-format.md`**（去重 / 按先例落位 / frontmatter / 同步画像·`CLAUDE`·`AGENTS`·`00-Home`·MOC），照它做。知识笔记按**切片法**·原子粒度（一念一片、`[[]]` 互链；见 `references/methodologies/atomic-slicing.md`）。**正文用结构化 markdown 写**（`## 小标题` / `- ` 列表 / `**强调**`，别一坨纯文本；链接用 `[[路径|别名]]` 不用裸标题）。**只写用户明说的事实**，推断的标 `sources: 推断·待确认` 或先问。`~/.second-brain-obsidian/config.json` 里 `confirm_before_write: true` 时写前先确认。
 
 **偏好 ≠ 知识（提到喜欢 / 在读 / 在用的书·作品·工具·领域时·必做）**：用户说喜欢某个**具体东西**（如「我喜欢《浮生物语》」）时，别只把「喜欢 X」记进画像偏好就完事——**还要主动建一条关于 X 的知识笔记**：① 费曼问「你最触动 / 最受用的是什么？」拿用户自己的收获（`sources: 用户明说`）；② **主动 WebSearch / WebFetch 去找 X 的基本信息**（作者 / 主题 / 梗概 / 核心观点，标 `sources: 网络`）；③ 按 `note-templates.md` 的读书笔记 / 概念模板写进库。用户说「帮我提炼」= 要的就是这条知识笔记，不是只记个偏好。
 

@@ -46,23 +46,26 @@ def build(root):
 
     for m in MODES:
         sec = "\n## Inputs\n## Process\n## Outputs\n## Feedback\n"
-        if m == "项目交付":  # MOC 链到笔记（按标题）—— 测 alias 解析
-            sec = "\n## Inputs\n## Process\n- [[PRD 草稿]]\n## Outputs\n## Feedback\n- [[上线复盘]]\n"
+        if m == "项目交付":  # MOC 用「相对路径|别名」链到笔记（新规范·防断链）
+            sec = ("\n## Inputs\n## Process\n- [[20-Process/项目交付/2026-06-30 - PRD 草稿|PRD 草稿]]\n"
+                   "## Outputs\n## Feedback\n- [[40-Feedback/项目交付/2026-06-30 - 上线复盘|上线复盘]]\n")
         w(f"50-MOCs/MOC - {m}.md", f"---\ntype: moc\nmode: {MODE_ID[m]}\nupdated: 2026-06-30\n---\n\n# MOC · {m}\n{sec}")
 
     w("60-Domains/product.md", "---\ntype: domain\ndomain: product\nupdated: 2026-06-30\n---\n\n"
       "# 产品经理\n\n## 常用工作模式\n- 主：项目交付\n- 辅：研究分析\n\n## 推荐入口\n- [[MOC - 项目交付]]\n")
 
-    # (folder, 文件名带日期前缀, 笔记标题, layer, mode, 相关链接标题) —— 测「[[标题]] 靠 alias 解析」
+    # (folder, 文件名带日期前缀, 标题, layer, mode, 相关目标 [(路径不带.md, 显示标题) | None])
+    # 链接一律「相对路径|别名」；aliases 只做搜索/显示辅助、不作链接解析依据（新规范）
     notes = [("10-Inputs/研究分析", "2026-06-30 - 用户反馈记录", "用户反馈记录", "Inputs", "研究分析", None),
              ("20-Process/项目交付", "2026-06-30 - PRD 草稿", "PRD 草稿", "Process", "项目交付", None),
-             ("40-Feedback/项目交付", "2026-06-30 - 上线复盘", "上线复盘", "Feedback", "项目交付", "PRD 草稿")]
+             ("40-Feedback/项目交付", "2026-06-30 - 上线复盘", "上线复盘", "Feedback", "项目交付",
+              ("20-Process/项目交付/2026-06-30 - PRD 草稿", "PRD 草稿"))]
     for folder, fname, title, layer, mode, rel in notes:
         body = (f"---\ntype: knowledge\nlayer: {layer}\nmode: {MODE_ID[mode]}\ndomain: product\n"
                 f"created: 2026-06-30\nupdated: 2026-06-30\naliases: [{title}]\n"
                 f"tags: [领域/product, 类型/事实, 层/{layer}, 模式/{mode}]\nsources: [用户明说]\n---\n\n# {title}\n\n正文。\n")
         if rel:
-            body += f"\n相关：[[{rel}]]\n"
+            body += f"\n相关：[[{rel[0]}|{rel[1]}]]\n"
         w(f"{folder}/{fname}.md", body)
     w(".obsidian/app.json", "{}")
 
@@ -83,7 +86,6 @@ def frontmatter(path):
 def validate(root):
     issues = []
     allmd = [os.path.join(dp, f) for dp, _, fs in os.walk(root) for f in fs if f.endswith(".md")]
-    filemap = {os.path.splitext(os.path.basename(p))[0]: p for p in allmd}
 
     for p in allmd:
         rel = os.path.relpath(p, root)
@@ -112,18 +114,26 @@ def validate(root):
         if not os.path.exists(os.path.join(root, f"50-MOCs/MOC - {m}.md")):
             issues.append(f"[MOC 文件不存在] {m}")
 
-    resolvable = set(filemap)  # 文件名 + aliases（[[标题]] 要靠 alias 解析，因文件名带日期前缀）
+    # 链接解析【只认真实路径；短链 basename 只对固定名文件开放】，不认 frontmatter aliases（新规范·防退回短链）
+    FIXED_ROOT = {"用户画像", "00-Home", "CLAUDE", "AGENTS"}
+    resolvable = set()
     for p in allmd:
-        fm = frontmatter(p)
-        if fm and "aliases" in fm:
-            for a in fm["aliases"].strip("[] ").split(","):
-                a = a.strip()
-                if a:
-                    resolvable.add(a)
+        rel_no_ext = os.path.splitext(os.path.relpath(p, root))[0].replace(os.sep, "/")
+        resolvable.add(rel_no_ext)                    # 路径链：所有文件都可 [[相对路径|别名]]
+        base = os.path.basename(rel_no_ext)
+        if base in FIXED_ROOT or rel_no_ext.startswith(("50-MOCs/", "60-Domains/")):
+            resolvable.add(base)                      # 短链 basename 仅限固定名文件（用户画像/00-Home/MOC/domain）
     for p in allmd:
-        for tgt in re.findall(r"\[\[([^\]|]+)", open(p, encoding="utf-8").read()):
+        for raw in re.findall(r"\[\[([^\]|]+)", open(p, encoding="utf-8").read()):
+            tgt = raw.split("#")[0].strip()           # 取 | 前、# 前的路径部分
             if tgt not in resolvable:
-                issues.append(f"[断链] {os.path.relpath(p, root)} → [[{tgt}]]")
+                issues.append(f"[断链] {os.path.relpath(p, root)} → [[{raw}]]")
+
+    # 根目录只允许这几个固定文件——防止提炼笔记误落根目录（曾出现「根目录空 md」）
+    allowed_root = {"用户画像.md", "00-Home.md", "CLAUDE.md", "AGENTS.md"}
+    for f in os.listdir(root):
+        if f.endswith(".md") and f not in allowed_root:
+            issues.append(f"[根目录多余 md] {f}（知识笔记应落 <层>/<模式>/，别放根）")
     return issues
 
 
