@@ -56,6 +56,42 @@ frontmatter（`type/updated/framework_version/tags`）+ 固定 8 段：概览 + 
 
 ## 4. 核心流程（全 agent-native）
 
+> **全流程一图**（接入 → 一次性建立 → 日常长大；按需 / 可选用虚线）：
+
+```mermaid
+flowchart TD
+    subgraph ONCE [一次性建立]
+        direction TB
+        A["A 建库：认 Obsidian·没装问帮装 → 问库放哪 → 问主要管什么(六大模式) → 建骨架"]
+        B["B 采访：必问 语音·文字(语音配 Azure+MiniMax) → 费曼法出题 6维~15题 → 写画像+同步 CLAUDE·AGENTS"]
+        B5{"必问：灌你的知识？"}
+        K["知识导入：费曼抽取你懂的→你的笔记+盲区 · 导入你的 URL·书单·文件夹 · 类型模板　〔方法论=agent 手法，不塞进你库〕"]
+        A --> B --> B5
+        B5 -->|费曼抽取·导入资料| K
+    end
+
+    subgraph DAILY [日常长大·已建库]
+        direction TB
+        D([日常])
+        E["提炼(核心·每轮)：检查关于你的新信息 → 按价值写库 · 🧠页脚 · 忙时攒 pending 断点 flush"]
+        R["读取：进 vault 原生读 CLAUDE·AGENTS·00-Home · 或说「加载第二大脑」注入画像"]
+        D --> E
+        D --> R
+    end
+
+    S([接入 skill]) --> V{"读 vault_path：有库吗？"}
+    V -->|没库| Q["主动问：帮你建库 + 采访？"]
+    V -->|有库| P["先 flush pending.md 遗留"]
+    Q -->|同意| A
+    Q -->|待会儿| D
+    P --> D
+    B5 -->|先不用| D
+    K --> D
+    D -.按需.-> M["维护：喂 URL · 整理收件箱 · 体检"]
+    D -.按需.-> C["分析会话：/insights 或贴内容 → 提炼"]
+    B -.可选.-> VO["语音：Python 打电话式逐题问答"]
+```
+
 ### 4.1 建库（一次）
 接入本 skill 检测无库即主动发起。**显式做、等答**：**① 认 Obsidian——没装就主动问「要我帮你装吗？」（mac `brew --cask` / Win `winget` / Linux `flatpak`），别默默建文件夹不问** ② 库放哪 ③ 主要管什么（**带例子**→推荐主+辅模式+domain）。按 `vault-format.md` 建骨架：`00-Home.md` + 全部一级目录 + `50-MOCs/` 六张 MOC + `.obsidian/app.json` + 空 `用户画像/CLAUDE/AGENTS`；二级模式目录、行业页按需建。
 
