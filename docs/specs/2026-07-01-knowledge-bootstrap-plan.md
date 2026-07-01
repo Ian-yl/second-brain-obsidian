@@ -2,7 +2,7 @@
 title: 知识快速导入 · 引导用户快速建立知识体系（LLM 可执行方案）
 type: llm-plan
 version: 1.0
-status: 待实现（Phase 1 先做）
+status: 已实现（Phase 1-3 完成 · 2026-07-01）
 date: 2026-07-01
 ---
 
