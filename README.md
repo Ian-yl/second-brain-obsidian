@@ -73,7 +73,7 @@ flowchart TD
 
 ```
 SKILL.md                       # agent 编排指令（建库 / 采访 / 读取 / 在场提炼 / 知识维护）
-references/                    # vault 写入规范 + 人格框架 + 安装配置
+references/                    # vault 写入规范 + 人格框架 + 安装配置 + 方法论工具箱(费曼/切片…) + 笔记模板
 agents/openai.yaml             # Codex 清单
 scripts/                       # 仅语音问答用（可选 · Python）
   keys.py / store.py           # 语音密钥（secrets.env, 600）+ 小工具
