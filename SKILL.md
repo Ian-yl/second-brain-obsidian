@@ -37,16 +37,15 @@ description: >-
 ---
 
 ## A. 建库（一次 · 接入后主动发起）
-按 `vault-format.md` 直接建。**带【问】的两处必须显式问、等用户答，别静默用默认**：
-1. **【问】库放哪**：默认 mac=iCloud Obsidian 目录 / Win=`~/Documents/second-brain`，或用户给路径。已有库 → 问「复用 / 新建」。
-2. **【问】你主要想用它管什么**——**带例子问，别只甩抽象词**：
+按 `vault-format.md` 直接建。**下面带【问】/【必做】的步骤都要显式做、别静默跳过、别只闷头建文件夹**：
+1. **认 Obsidian + 没装就【问】要不要帮装**（**必做——别检测完没装就默默建文件夹、不问帮装**）：检测装没装（mac `/Applications/Obsidian.app`、Win `%LOCALAPPDATA%\Programs\obsidian`）。**没装 → 主动问「要我帮你装 Obsidian 吗？」并等用户答**：同意 → 装（mac `brew install --cask obsidian`、Win `winget install -e --id Obsidian.Obsidian`、Linux `flatpak install -y flathub md.obsidian.Obsidian`；没包管理器 / 装失败 → 给 https://obsidian.md 手动）。不装也照常（vault 就是 markdown、不影响读写）。
+2. **【问】库放哪**：默认 mac=iCloud Obsidian 目录 / Win=`~/Documents/second-brain`，或用户给路径。已有库 → 问「复用 / 新建」。
+3. **【问】你主要想用它管什么**——**带例子问，别只甩抽象词**：
    > 给你几个方向（说哪个都行，也可直接说你的职业 / 在做的事，我帮你归）：项目·上线 / 研究·分析 / 客户·案件·病人候选人 / 写文章·做内容 / 流程·SOP·复盘 / 学习·成长。
 
    据答推荐**主 + 辅工作模式 + domain**（映射见 `vault-format.md` 与 `docs/Obsidian-六大工作模式模板指南.md`），一句话回确认。**不预建空目录。**
-3. **建骨架 + 记路径**：按 `vault-format.md` 建 `00-Home.md` + 全部一级目录 + `50-MOCs/` **6 张 MOC** + `.obsidian/app.json` + 空 `用户画像.md` / `CLAUDE.md` / `AGENTS.md`（二级模式子目录、行业页**按需**）；把 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`。
-4. 接着采访（§B）。之后日常靠 §提炼，**无需任何安装**。
-
-> Obsidian 可选：vault 就是 markdown 文件夹，没装也照常读写。**没装 → 主动问「要我帮你装 Obsidian 吗？」**，同意就装：mac `brew install --cask obsidian`、Win `winget install -e --id Obsidian.Obsidian`、Linux `flatpak install -y flathub md.obsidian.Obsidian`；没包管理器 / 装失败 → 给 https://obsidian.md 让其手动。不装也不影响读写。
+4. **建骨架 + 记路径**：按 `vault-format.md` 建 `00-Home.md` + 全部一级目录 + `50-MOCs/` **6 张 MOC** + `.obsidian/app.json` + 空 `用户画像.md` / `CLAUDE.md` / `AGENTS.md`（二级模式子目录、行业页**按需**）；把 vault 绝对路径写进 `~/.second-brain-obsidian/vault_path`。
+5. 接着采访（§B）。之后日常靠 §提炼，**无需任何安装**。
 
 ## B. 采访 → 写画像
 > ⚠️ **第 ① 步「语音还是文字」是必问闸门**——**出题前必须先问、等用户回答，绝不跳过直接甩文字题**（跟建库那两个【问】一样刚性）。

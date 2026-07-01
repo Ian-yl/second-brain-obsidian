@@ -57,7 +57,7 @@ frontmatter（`type/updated/framework_version/tags`）+ 固定 8 段：概览 + 
 ## 4. 核心流程（全 agent-native）
 
 ### 4.1 建库（一次）
-接入本 skill 检测无库即主动发起。**显式问且等答**：① 库放哪 ② 主要管什么（**带例子**→推荐主+辅模式+domain）。按 `vault-format.md` 建骨架：`00-Home.md` + 全部一级目录 + `50-MOCs/` 六张 MOC + `.obsidian/app.json` + 空 `用户画像/CLAUDE/AGENTS`；二级模式目录、行业页按需建。
+接入本 skill 检测无库即主动发起。**显式做、等答**：**① 认 Obsidian——没装就主动问「要我帮你装吗？」（mac `brew --cask` / Win `winget` / Linux `flatpak`），别默默建文件夹不问** ② 库放哪 ③ 主要管什么（**带例子**→推荐主+辅模式+domain）。按 `vault-format.md` 建骨架：`00-Home.md` + 全部一级目录 + `50-MOCs/` 六张 MOC + `.obsidian/app.json` + 空 `用户画像/CLAUDE/AGENTS`；二级模式目录、行业页按需建。
 
 ### 4.2 采访（人格问答）
 agent 自己出题，覆盖 6 维度、共约 15 题（框架见 `framework.md`）。**采访开头必问「语音还是文字」**（必问闸门·等用户答再出题、别跳过直接甩文字题）；文字则一次性填，语音则实时作答（§5）。agent 把答案提炼成画像，写进 `用户画像.md` + 同步 `CLAUDE.md`/`AGENTS.md`。
