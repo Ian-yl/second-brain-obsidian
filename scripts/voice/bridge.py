@@ -5,7 +5,7 @@
 token 下发给浏览器。问题用浏览器 TTS 朗读，回答经 Azure STT 实时转写后回收。
 
 用法：
-  python3 scripts/voice/bridge.py --questions /tmp/q.json --out /tmp/answers.json [--port 8765]
+  python3 scripts/voice/bridge.py --questions <q.json> --out <answers.json> [--port 8765]
 其中 q.json 形如 ["问题1", "问题2", ...]。结束后 answers.json 形如
   [{"q": "问题1", "a": "用户语音转写"}, ...]
 

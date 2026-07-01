@@ -93,10 +93,10 @@ description: >-
 
 用户选语音且有 Python 时：
 1. `python3 SK/scripts/keys.py status` 看 `voice_ready`：已配 → 第 2 步；**没配 → 按 §语音密钥 话术引导配，拿到 `keys.py set` 存好；不想配 → 回退文字。**
-2. 问题存 `/tmp/q.json`（`["问题1",...]`）。
-3. `python3 SK/scripts/voice/bridge.py --questions /tmp/q.json --out /tmp/answers.json --background` —— **必须加 `--background`**（不加会卡住你）。它秒返回 URL、自动开浏览器；把 URL 以可点击 markdown 链接发用户（`[🎙️ 打开语音问答](http://127.0.0.1:8765/)`），让其点页面「开始通话」。
+2. 问题存 `~/.second-brain-obsidian/voice-q.json`（`["问题1",...]`；用这个跨平台路径、**别用 `/tmp`**——Windows 没有）。
+3. `python3 SK/scripts/voice/bridge.py --questions ~/.second-brain-obsidian/voice-q.json --out ~/.second-brain-obsidian/voice-answers.json --background`（路径先展开 `~`；Win 把 `python3` 换 `python`） —— **必须加 `--background`**（不加会卡住你）。它秒返回 URL、自动开浏览器；把 URL 以可点击 markdown 链接发用户（`[🎙️ 打开语音问答](http://127.0.0.1:8765/)`），让其点页面「开始通话」。
 4. 浏览器**像打电话**：自动朗读（右上角可选**男 / 女声**，默认女声）→ 自动聆听 → 停顿即下一题；同步文字 + 历史。
-5. **等用户说「答完了」**（或 `/tmp/answers.json` 写出）→ 读 `answers` 提炼写画像（同 §B 收尾）。`reason`=`completed`/`hangup` 正常入库；`error`/`closed`（异常 / 中途关页）→ 告诉用户「语音异常结束」，问重试或转文字，别当成功。
+5. **等用户说「答完了」**（或 `~/.second-brain-obsidian/voice-answers.json` 写出）→ 读 `answers` 提炼写画像（同 §B 收尾）。`reason`=`completed`/`hangup` 正常入库；`error`/`closed`（异常 / 中途关页）→ 告诉用户「语音异常结束」，问重试或转文字，别当成功。
 
 ## 语音密钥（随时设置 · 需 Python）
 - `python3 SK/scripts/keys.py status` 看现状；`keys.py set --azure-key <KEY> [--azure-region koreacentral] [--minimax-key <KEY>]`。密钥仅存 `~/.second-brain-obsidian/secrets.env`（chmod 600）。
